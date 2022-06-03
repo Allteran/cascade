@@ -1,12 +1,11 @@
 import Vue from "vue"
-import Vuetify from 'vuetify'
-import './api/resource'
-import App from './pages/App.vue'
+import 'api/resource'
+import App from 'pages/App.vue'
+import vuetify from 'plugins/vuetify'
 
-Vue.use(Vuetify)
 
 new Vue({
-    vuetify: new Vuetify(),
+    vuetify,
     el: "#app",
     render: a => a(App)
 })
