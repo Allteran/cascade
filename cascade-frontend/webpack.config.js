@@ -13,7 +13,7 @@ module.exports = {
   devServer: {
     static: './dist',
     compress: true,
-    port: 8100,
+    port: 8200,
     allowedHosts: [
       'localhost:9000'
     ]
@@ -41,6 +41,13 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+        ]
       },
       {
         test: /\.js$/,

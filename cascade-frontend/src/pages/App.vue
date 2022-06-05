@@ -5,7 +5,7 @@
         outlined
         app
     >
-      <v-toolbar-title>Sellper</v-toolbar-title>
+      <v-toolbar-title>Title</v-toolbar-title>
       <v-btn text
       >
         Item 1
