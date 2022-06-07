@@ -13,9 +13,9 @@ module.exports = {
   devServer: {
     static: './dist',
     compress: true,
-    port: 8200,
+    port: 8100,
     allowedHosts: [
-      'localhost:9000'
+      'localhost:9090'
     ]
   },
   module: {

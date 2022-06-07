@@ -5,20 +5,26 @@
         outlined
         app
     >
-      <v-toolbar-title>Title</v-toolbar-title>
+      <v-toolbar-title class="text-uppercase">
+        <span class="font-weight-bold">Cascade</span>
+      </v-toolbar-title>
       <v-btn text
       >
-        Item 1
+        Создание заявки
       </v-btn>
       <v-btn text
       >
-        Item 2
+        Реестр ремонта
       </v-btn>
       <v-btn text
       >
-        Item 3
+        Отчеты
       </v-btn>
-
+      <v-btn text
+             @click="showAdminPanel"
+      >
+        Управление
+      </v-btn>
       <v-spacer></v-spacer>
       <v-btn
           text
@@ -31,7 +37,7 @@
     </v-app-bar>
     <v-main>
       <v-container>
-        <!-- <router-view></router-view> -->
+        <router-view></router-view>
       </v-container>
     </v-main>
 
@@ -40,6 +46,11 @@
 
 <script>
     export default {
+      methods: {
+        showAdminPanel() {
+          this.$router.push('/adm/panel')
+        }
+      }
     }
 </script>
 

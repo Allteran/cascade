@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/workshop/device-type")
+@CrossOrigin(origins = "http://localhost:8100")
 public class DeviceTypeController {
     private final DeviceTypeService deviceTypeService;
     private final ModelMapper modelMapper;
