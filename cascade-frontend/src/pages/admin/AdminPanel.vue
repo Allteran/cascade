@@ -87,6 +87,7 @@
       >
         <v-card
             class="mx-auto"
+            @click="showRepairStatusPage"
         >
           <v-card-text>
             <p class="text-h5 text--primary">
@@ -109,6 +110,9 @@ export default {
     showRepairDeviceTypePage() {
       this.$router.push('/adm/repair/device-type')
     },
+    showRepairStatusPage() {
+      this.$router.push('/adm/repair/status')
+    }
   }
 }
 </script>

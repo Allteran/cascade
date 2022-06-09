@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/workshop/status")
+@CrossOrigin(origins = "http://localhost:8100")
 public class StatusController {
     private final StatusService statusService;
     private final ModelMapper modelMapper;

@@ -10,6 +10,7 @@ export default new Vuex.Store({
     state: {
         orderStatusList:[],
         deviceTypeList:[],
+        repairStatusList:[],
     },
     mutations: {
         /**
@@ -33,7 +34,30 @@ export default new Vuex.Store({
                     ...state.deviceTypeList.slice(index + 1)
                 ]
             }
+        },
+        /**
+         * Repair Device Status
+         */
+        getRepairStatusListMutation(state, list) {
+            state.repairStatusList = list
+        },
+        addRepairStatusMutation(state, status) {
+            state.repairStatusList = [
+                ...state.repairStatusList,
+                status
+            ]
+        },
+        updateRepairStatusMutation(state, status) {
+            const index = state.repairStatusList.findIndex(item => item.id === status.id)
+            if (index > -1) {
+                state.repairStatusList = [
+                    ...state.repairStatusList.slice(0, index),
+                    status,
+                    ...state.repairStatusList.slice(index + 1)
+                ]
+            }
         }
+
     },
     actions: {
         /**
@@ -42,7 +66,6 @@ export default new Vuex.Store({
         async getDeviceTypeList({commit}) {
             await axios.get(workshopUrl + '/device-type/list')
                 .then(result => {
-                    console.log('result: ', result)
                     commit('getDeviceTypeListMutation', result.data)
                 })
         },
@@ -59,10 +82,36 @@ export default new Vuex.Store({
                 })
         },
         async updateDeviceType({commit}, type) {
-            await axios.put(workshopUrl + '/device-type/update/' + type.id)
+            await axios.put(workshopUrl + '/device-type/update/' + type.id, type)
                 .then(result => {
                     commit('updateDeviceTypeMutation', type)
                 })
-        }
+        },
+        /**
+         * Repair Device Status actions
+         */
+        async getRepairStatusList({commit}) {
+            await axios.get(workshopUrl + '/status/list')
+                .then(result => {
+                    commit('getRepairStatusListMutation', result.data)
+                })
+        },
+        async addRepairStatus({commit}, status) {
+            await axios.post(workshopUrl + '/status/new', status)
+                .then(result => {
+                    const index = this.state.repairStatusList.findIndex(item => item.id === result.data.id)
+                    if(index > -1) {
+                        commit('updateRepairStatusMutation', status)
+                    } else {
+                        commit('addRepairStatusMutation', status)
+                    }
+                })
+        },
+        async updateRepairStatus ({commit}, status) {
+            await axios.put(workshopUrl + '/status/update/' + status.id, status)
+                .then(result => {
+                    commit('updateRepairStatusMutation', status)
+                })
+        },
     }
 })
