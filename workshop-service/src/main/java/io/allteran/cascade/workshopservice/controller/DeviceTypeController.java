@@ -52,7 +52,7 @@ public class DeviceTypeController {
         DeviceType createdType = deviceTypeService.create(deviceType);
         if(createdType.getId() != null && !createdType.getId().isEmpty()) {
             DeviceTypeDTO createdTypeDTO = convertToDTO(createdType);
-            return new ResponseEntity<>(createdTypeDTO, HttpStatus.OK);
+            return new ResponseEntity<>(createdTypeDTO, HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
