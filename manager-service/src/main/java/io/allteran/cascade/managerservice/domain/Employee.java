@@ -2,6 +2,7 @@ package io.allteran.cascade.managerservice.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,7 +15,8 @@ import java.util.Set;
 @Setter
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
     private String phone;
     private String firstName;
@@ -31,6 +33,7 @@ public class Employee {
     private boolean active;
     private LocalDateTime creationDate;
     private LocalDateTime hireDate;
+    private LocalDateTime dismissalDate;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "employee_role", joinColumns = @JoinColumn(name = "employee_id"))

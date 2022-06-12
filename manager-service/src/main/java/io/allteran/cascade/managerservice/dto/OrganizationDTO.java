@@ -7,4 +7,5 @@ public class OrganizationDTO {
     private String id;
     private String inn;
     private String name;
+
 }

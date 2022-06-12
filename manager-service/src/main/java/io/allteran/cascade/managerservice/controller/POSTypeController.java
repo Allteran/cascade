@@ -36,7 +36,13 @@ public class POSTypeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<POSTypeDTO> findById(@PathVariable("id") String id) {
-        POSType posType = posTypeService.findById(id);
+        POSType posType;
+        try {
+            posType = posTypeService.findById(id);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         if(posType != null && !posType.getId().isEmpty()) {
             POSTypeDTO posTypeDTO = convertToDTO(posType);
             return new ResponseEntity<>(posTypeDTO, HttpStatus.OK);
