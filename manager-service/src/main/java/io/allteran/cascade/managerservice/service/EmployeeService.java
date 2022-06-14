@@ -17,12 +17,10 @@ import java.util.Set;
 @Service
 public class EmployeeService {
     private final EmployeeRepository employeeRepo;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepo, PasswordEncoder passwordEncoder) {
+    public EmployeeService(EmployeeRepository employeeRepo) {
         this.employeeRepo = employeeRepo;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Employee> findAll() {
@@ -47,7 +45,8 @@ public class EmployeeService {
 
     public Employee create(Employee user) {
         user.setCreationDate(LocalDateTime.now());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //TODO: encode user password
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(Collections.singleton(Role.EMPLOYEE));
 
         return user;
@@ -55,7 +54,8 @@ public class EmployeeService {
 
     public Employee createAdmin(Employee admin) {
         admin.setCreationDate(LocalDateTime.now());
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        //TODO: encode user password
+//        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         Set<Role> roles = new HashSet<>();
         roles.add(Role.EMPLOYEE);
         roles.add(Role.ADMIN);
