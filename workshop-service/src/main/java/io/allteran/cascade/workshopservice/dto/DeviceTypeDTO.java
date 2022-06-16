@@ -1,5 +1,6 @@
 package io.allteran.cascade.workshopservice.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
