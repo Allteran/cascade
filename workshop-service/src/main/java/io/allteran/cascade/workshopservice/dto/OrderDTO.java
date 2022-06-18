@@ -1,16 +1,18 @@
 package io.allteran.cascade.workshopservice.dto;
 
-import io.allteran.cascade.workshopservice.domain.DeviceType;
-import io.allteran.cascade.workshopservice.domain.Status;
+import lombok.Data;
 
 import java.time.LocalDate;
-
+@Data
 public class OrderDTO {
     private String id;
     private String deviceName;
 
-    private DeviceType deviceType;
-    private Status status;
+    private String deviceTypeId;
+    private String deviceTypeName;
+
+    private String statusId;
+    private String statusName;
 
     private String serialNumber;
     private String defect;
@@ -35,10 +37,18 @@ public class OrderDTO {
     private double headEngineerProfit;
     private double engineerProfit;
     private double managerProfit;
+    private double employeeProfit;
 
     private String customerName;
     private String customerPhone;
 
-    private String author;
-    private String engineer;
+    private String posId;
+    private String posNickname;
+
+    private String authorId;
+    private String authorName;
+
+    private String engineerId;
+    private String engineerName;
+    private String engineerRole;
 }

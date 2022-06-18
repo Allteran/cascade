@@ -4,6 +4,7 @@ import io.allteran.cascade.workshopservice.domain.Order;
 import io.allteran.cascade.workshopservice.domain.Status;
 import io.allteran.cascade.workshopservice.dto.RoleDTO;
 import io.allteran.cascade.workshopservice.dto.UserDTO;
+import io.allteran.cascade.workshopservice.exception.NotFoundException;
 import io.allteran.cascade.workshopservice.exception.WorkshopException;
 import io.allteran.cascade.workshopservice.repo.OrderRepository;
 import org.springframework.beans.BeanUtils;
@@ -45,7 +46,7 @@ public class OrderService {
         if(orderRepository.findById(id).isPresent()) {
             return orderRepository.findById(id).get();
         } else {
-            throw new RuntimeException("Order with id " + id + " not found in database");
+            throw new NotFoundException("Order with id " + id + " not found in database");
         }
     }
 

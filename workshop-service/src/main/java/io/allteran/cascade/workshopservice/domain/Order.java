@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 @Document(value = "order")
-public final class Order {
+public class Order {
     @Id
     private String id;
     private String deviceName;
@@ -43,10 +43,16 @@ public final class Order {
     private double headEngineerProfit;
     private double engineerProfit;
     private double managerProfit;
+    private double employeeProfit;
 
     private String customerName;
     private String customerPhone;
 
-    private String author;
-    private String engineer;
+    private String posId;
+
+    private String authorId;
+
+    private String engineerId;
+    private String engineerRole;
 }
+

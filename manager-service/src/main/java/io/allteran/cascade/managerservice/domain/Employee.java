@@ -25,6 +25,8 @@ public class Employee {
     private String password;
     @Transient
     private String passwordConfirm;
+    @Transient
+    private String newPassword;
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
