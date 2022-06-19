@@ -2,8 +2,8 @@ package io.allteran.cascade.managerservice.controller;
 
 import io.allteran.cascade.managerservice.domain.POSType;
 import io.allteran.cascade.managerservice.domain.PointOfSales;
-import io.allteran.cascade.managerservice.dto.POSTypeDTO;
 import io.allteran.cascade.managerservice.dto.PointOfSalesDTO;
+import io.allteran.cascade.managerservice.exception.NotFoundException;
 import io.allteran.cascade.managerservice.service.POSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +31,25 @@ public class POSController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/query")
+    public ResponseEntity<List<PointOfSalesDTO>> findAllByQuery(@RequestParam List<String> id) {
+        List<PointOfSales> posList;
+        try {
+            posList = posService.findAllById(id);
+        } catch (NotFoundException ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(posList != null && !posList.isEmpty()) {
+            List<PointOfSalesDTO> dtoList = posList.stream().map(this::convertToDTO).toList();
+            return new ResponseEntity<>(dtoList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+
     }
 
     @GetMapping("/{id}")

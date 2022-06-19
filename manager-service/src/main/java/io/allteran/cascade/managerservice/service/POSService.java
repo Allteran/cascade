@@ -1,6 +1,7 @@
 package io.allteran.cascade.managerservice.service;
 
 import io.allteran.cascade.managerservice.domain.PointOfSales;
+import io.allteran.cascade.managerservice.exception.NotFoundException;
 import io.allteran.cascade.managerservice.repo.POSRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,12 @@ public class POSService {
         if(posRepo.findById(id).isPresent()) {
             return posRepo.findById(id).get();
         } else {
-            throw new RuntimeException("Point of sales with id [" + id + "] not found in DB");
+            throw new NotFoundException("Point of sales with id [" + id + "] not found in DB");
         }
+    }
+
+    public List<PointOfSales> findAllById(List<String> idList) {
+        return posRepo.findAllById(idList);
     }
 
     public PointOfSales create(PointOfSales pos) {

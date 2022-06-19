@@ -38,6 +38,17 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/query")
+    public ResponseEntity<List<EmployeeDTO>> findByQuery(@RequestParam List<String> id) {
+        List<Employee> employeeList = employeeService.findAllById(id);
+        if(employeeList != null) {
+            List<EmployeeDTO> dtoList = employeeList.stream().map(this::convertToDTO).toList();
+            return new ResponseEntity<>(dtoList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<EmployeeDTO> findById(@PathVariable("id") String id) {
         Employee employee = employeeService.findById(id);

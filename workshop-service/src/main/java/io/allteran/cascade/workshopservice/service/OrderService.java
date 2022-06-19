@@ -2,8 +2,6 @@ package io.allteran.cascade.workshopservice.service;
 
 import io.allteran.cascade.workshopservice.domain.Order;
 import io.allteran.cascade.workshopservice.domain.Status;
-import io.allteran.cascade.workshopservice.dto.RoleDTO;
-import io.allteran.cascade.workshopservice.dto.UserDTO;
 import io.allteran.cascade.workshopservice.exception.NotFoundException;
 import io.allteran.cascade.workshopservice.exception.WorkshopException;
 import io.allteran.cascade.workshopservice.repo.OrderRepository;
@@ -61,7 +59,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order update (Order orderFromDb, Order order, UserDTO user) {
+    public Order update (Order orderFromDb, Order order) {
         BeanUtils.copyProperties(order, orderFromDb, "id");
 
         orderFromDb.setServicePrice(orderFromDb.getTotalPrice() - orderFromDb.getComponentPrice() - orderFromDb.getMarginPrice());
@@ -69,7 +67,7 @@ public class OrderService {
         double headEngineerProfit;
         double engineerProfit;
         double managerProfit;
-        if(user.getRole().getId().equals(ROLE_HEAD_ENGINEER)) {
+        if(order.getEngineerRoles().equals(ROLE_HEAD_ENGINEER)) {
             directorProfit = orderFromDb.getServicePrice() * 0.45 + orderFromDb.getMarginPrice() / 2;
             headEngineerProfit = directorProfit + orderFromDb.getComponentPrice();
             engineerProfit = 0;

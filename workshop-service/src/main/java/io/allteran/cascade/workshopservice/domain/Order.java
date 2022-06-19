@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -53,6 +54,6 @@ public class Order {
     private String authorId;
 
     private String engineerId;
-    private String engineerRole;
+    private Set<String> engineerRoles;
 }
 

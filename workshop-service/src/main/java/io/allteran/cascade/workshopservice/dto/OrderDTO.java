@@ -2,9 +2,12 @@ package io.allteran.cascade.workshopservice.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
+
 @Data
-public class OrderDTO {
+public class OrderDTO implements Serializable {
     private String id;
     private String deviceName;
 
@@ -43,12 +46,12 @@ public class OrderDTO {
     private String customerPhone;
 
     private String posId;
-    private String posNickname;
+    private String posShortName;
 
     private String authorId;
     private String authorName;
 
     private String engineerId;
     private String engineerName;
-    private String engineerRole;
+    private Set<String> engineerRoles;
 }

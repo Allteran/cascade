@@ -30,6 +30,10 @@ public class EmployeeService {
         return employeeRepo.findAll(Sort.by("creationDate").descending());
     }
 
+    public List<Employee> findAllById(List<String> idList) {
+        return employeeRepo.findAllById(idList);
+    }
+
     public Employee findById(String id) {
         if(employeeRepo.findById(id).isPresent()) {
             return employeeRepo.findById(id).get();
