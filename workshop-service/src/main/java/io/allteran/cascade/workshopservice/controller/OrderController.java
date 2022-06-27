@@ -5,6 +5,7 @@ import io.allteran.cascade.workshopservice.domain.Order;
 import io.allteran.cascade.workshopservice.domain.Status;
 import io.allteran.cascade.workshopservice.dto.EmployeeDTO;
 import io.allteran.cascade.workshopservice.dto.OrderDTO;
+import io.allteran.cascade.workshopservice.dto.OrderResponse;
 import io.allteran.cascade.workshopservice.dto.PointOfSalesDTO;
 import io.allteran.cascade.workshopservice.exception.WorkshopException;
 import io.allteran.cascade.workshopservice.service.OrderService;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/workshop/order")
+@CrossOrigin(origins = "http://localhost:8100")
 @Slf4j
 public class OrderController {
     private static final String MANAGE_SERVICE_EMPLOYEE_URI = "http://localhost:9091/api/v1/manage/employee/";
@@ -36,12 +38,13 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<OrderDTO> >findAll() {
+    public ResponseEntity<OrderResponse> findAll() {
+        OrderResponse response = new OrderResponse();
         List<Order> orders = orderService.findAll();
         if(orders != null && !orders.isEmpty()) {
             List<String> employeeIdList = orders.stream().map(Order::getAuthorId).toList();
             EmployeeDTO[] employeeDTOs = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "query/",
+                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "/search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id",employeeIdList).build())
                     .retrieve()
                     .bodyToMono(EmployeeDTO[].class)
@@ -49,7 +52,7 @@ public class OrderController {
 
             List<String> posIdList = orders.stream().map(Order::getPosId).toList();
             PointOfSalesDTO[] posDTOs = webClient.get()
-                    .uri(MANAGE_SERVICE_POS_URI + "query/",
+                    .uri(MANAGE_SERVICE_POS_URI + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", posIdList).build())
                     .retrieve()
                     .bodyToMono(PointOfSalesDTO[].class)
@@ -57,22 +60,25 @@ public class OrderController {
 
             List<String> engineerIdList = orders.stream().map(Order::getEngineerId).toList();
             EmployeeDTO[] engineerDTOs = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "query/",
+                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", engineerIdList).build())
                     .retrieve()
                     .bodyToMono(EmployeeDTO[].class)
                     .block();
             if(engineerDTOs == null) {
                 log.debug("Database doesn't recognize engineers with ID from orders");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                response.setResponseMessage("Database doesn't recognize engineers with ID from orders");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
             if(employeeDTOs == null) {
                 log.error("Database doesn't recognize users ID from orders");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                response.setResponseMessage("Database doesn't recognize users ID from orders");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
             if(posDTOs == null) {
                 log.error("Database doesn't recognize POS ID from orders");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                response.setResponseMessage("Database doesn't recognize POS ID from orders");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
             List<OrderDTO> dtos = orders.stream().map(this::convertToDTO).toList()
                     .stream()
@@ -94,9 +100,11 @@ public class OrderController {
                             }
                         }
                     }).toList();
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+            response.setOrderList(dtos);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            response.setResponseMessage("List of orders is empty");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
@@ -248,6 +256,7 @@ public class OrderController {
 
         order.setEngineerId(orderDTO.getEngineerId());
         order.setEngineerRoles(orderDTO.getEngineerRoles());
+        order.setComment(orderDTO.getComment());
 
         return order;
     }
@@ -288,6 +297,7 @@ public class OrderController {
 
         orderDTO.setEngineerId(order.getEngineerId());
         orderDTO.setEngineerRoles(order.getEngineerRoles());
+        orderDTO.setComment(order.getComment());
 
         return orderDTO;
 

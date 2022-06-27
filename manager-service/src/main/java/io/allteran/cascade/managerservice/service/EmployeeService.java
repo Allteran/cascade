@@ -1,29 +1,46 @@
 package io.allteran.cascade.managerservice.service;
 
 import io.allteran.cascade.managerservice.domain.Employee;
+import io.allteran.cascade.managerservice.domain.Organization;
 import io.allteran.cascade.managerservice.domain.Role;
 import io.allteran.cascade.managerservice.exception.NotFoundException;
 import io.allteran.cascade.managerservice.exception.UserFieldException;
 import io.allteran.cascade.managerservice.repo.EmployeeRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class EmployeeService {
     private static final LocalDateTime DEFAULT_DATE = LocalDateTime.of(1,1,1,1,1);
     private final EmployeeRepository employeeRepo;
+    private final OrganizationService orgService;
+    private final RoleService roleService;
+    @Value("${role.employee}")
+    private String ROLE_EMPLOYEE_ID;
+    @Value("${role.admin}")
+    private String ROLE_ADMIN_ID;
+    @Value("${role.engineer}")
+    private String ROLE_ENGINEER_ID;
+    @Value("${role.head-engineer}")
+    private String ROLE_HEAD_ENGINEER_ID;
+    @Value("${role.manager}")
+    private String ROLE_MANAGER_ID;
+    @Value("${role.director}")
+    private String ROLE_DIRECTOR_ID;
+    @Value("${organization.default}")
+    private String ORGANIZATION_DEFAULT_ID;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepo) {
+    public EmployeeService(EmployeeRepository employeeRepo, OrganizationService orgService, RoleService roleService) {
         this.employeeRepo = employeeRepo;
+        this.orgService = orgService;
+        this.roleService = roleService;
     }
 
     public List<Employee> findAll() {
@@ -33,6 +50,12 @@ public class EmployeeService {
     public List<Employee> findAllById(List<String> idList) {
         return employeeRepo.findAllById(idList);
     }
+
+    public List<Employee> findAllByRoles(List<Role> roles) {
+        Set<Employee> empSet = new HashSet<>(employeeRepo.findByRolesIn(roles));
+        return new ArrayList<>(empSet);
+    }
+
 
     public Employee findById(String id) {
         if(employeeRepo.findById(id).isPresent()) {
@@ -68,7 +91,7 @@ public class EmployeeService {
         user.setCreationDate(LocalDateTime.now());
         //TODO: encode user password
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Collections.singleton(Role.EMPLOYEE));
+        user.setRoles(Collections.singleton(roleService.findById(ROLE_EMPLOYEE_ID)));
         user.setHireDate(user.getCreationDate());
         user.setDismissalDate(DEFAULT_DATE);
 
@@ -97,20 +120,71 @@ public class EmployeeService {
         return employeeRepo.save(userFromDb);
     }
 
-    public Employee createAdmin(Employee admin) {
+    public Employee createAdmin() {
+        Employee admin = new Employee();
+
+        admin.setFirstName("Admin");
+        admin.setLastName("Administrator");
+        admin.setPhone("79021335276");
+        admin.setActive(true);
+
         admin.setCreationDate(LocalDateTime.now());
         //TODO: encode user password
-//        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        admin.setPassword("123456789");
+        admin.setHireDate(LocalDateTime.now());
+        admin.setDismissalDate(DEFAULT_DATE);
         Set<Role> roles = new HashSet<>();
-        roles.add(Role.EMPLOYEE);
-        roles.add(Role.ADMIN);
-        roles.add(Role.ENGINEER);
-        roles.add(Role.HEAD_ENGINEER);
-        roles.add(Role.DIRECTOR);
-        roles.add(Role.MANAGER);
+        roles.add(roleService.findById(ROLE_EMPLOYEE_ID));
+        roles.add(roleService.findById(ROLE_ADMIN_ID));
+        roles.add(roleService.findById(ROLE_ENGINEER_ID));
+        roles.add(roleService.findById(ROLE_HEAD_ENGINEER_ID));
+        roles.add(roleService.findById(ROLE_DIRECTOR_ID));
+        roles.add(roleService.findById(ROLE_MANAGER_ID));
+
         admin.setRoles(roles);
 
-        return admin;
+        Organization org = orgService.findById(ORGANIZATION_DEFAULT_ID);
+        admin.setOrganization(org);
+
+
+        return employeeRepo.save(admin);
+    }
+
+    public Employee createEngineer() {
+        Employee engineer = new Employee();
+        engineer.setFirstName("Simple");
+        engineer.setLastName("Engineer");
+        engineer.setPhone("79522222222");
+        engineer.setActive(true);
+        engineer.setCreationDate(LocalDateTime.now());
+        engineer.setHireDate(LocalDateTime.now());
+        engineer.setDismissalDate(DEFAULT_DATE);
+        engineer.setPassword("11111111");
+        engineer.setRoles(Collections.singleton(roleService.findById(ROLE_ENGINEER_ID)));
+
+        Organization org = orgService.findById(ORGANIZATION_DEFAULT_ID);
+        engineer.setOrganization(org);
+
+        return employeeRepo.save(engineer);
+    }
+
+    public Employee createHeadEngineer() {
+        Employee headEngineer = new Employee();
+        headEngineer.setFirstName("Head");
+        headEngineer.setLastName("Engineer");
+        headEngineer.setPhone("79000000000");
+        headEngineer.setActive(true);
+        headEngineer.setCreationDate(LocalDateTime.now());
+        headEngineer.setHireDate(LocalDateTime.now());
+        headEngineer.setDismissalDate(DEFAULT_DATE);
+        headEngineer.setPassword("22222222");
+
+        headEngineer.setRoles(Collections.singleton(roleService.findById(ROLE_HEAD_ENGINEER_ID)));
+
+        Organization org = orgService.findById(ORGANIZATION_DEFAULT_ID);
+        headEngineer.setOrganization(org);
+
+        return employeeRepo.save(headEngineer);
     }
 
     public void delete(String id) {

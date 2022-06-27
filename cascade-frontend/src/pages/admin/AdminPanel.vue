@@ -28,6 +28,26 @@
       >
         <v-card
             class="mx-auto"
+            @click="showRolePage"
+        >
+          <v-card-text>
+            <p class="text-h5 text--primary">
+              Роли
+            </p>
+            <div class="text--primary">
+              Список возможных ролей для пользователей системы
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col
+          :cols="6"
+          sm="4"
+      >
+        <v-card
+            class="mx-auto"
+            @click="showPOSPage"
         >
           <v-card-text>
             <p class="text-h5 text--primary">
@@ -46,6 +66,7 @@
       >
         <v-card
             class="mx-auto"
+            @click="showPOSTypePage"
         >
           <v-card-text>
             <p class="text-h5 text--primary">
@@ -53,6 +74,24 @@
             </p>
             <div class="text--primary">
               Список типов торговых точек - франшизы (Мегафон, Т2, МТС и т.д.)
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+          :cols="6"
+          sm="4"
+      >
+        <v-card
+            class="mx-auto"
+            @click="showOrganizationPage"
+        >
+          <v-card-text>
+            <p class="text-h5 text--primary">
+              Организации
+            </p>
+            <div class="text--primary">
+              Все используемые организации: ООО, ПАО, ЗАО, ИП, самозанятые
             </div>
           </v-card-text>
         </v-card>
@@ -112,6 +151,18 @@ export default {
     },
     showRepairStatusPage() {
       this.$router.push('/adm/repair/status')
+    },
+    showRolePage() {
+      this.$router.push('/adm/manage/employee-role')
+    },
+    showOrganizationPage() {
+      this.$router.push('/adm/manage/organization')
+    },
+    showPOSTypePage() {
+      this.$router.push('/adm/manage/pos-type')
+    },
+    showPOSPage() {
+      this.$router.push('/adm/manage/pos')
     }
   }
 }

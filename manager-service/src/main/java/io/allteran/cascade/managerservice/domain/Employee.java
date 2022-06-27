@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -37,8 +36,10 @@ public class Employee {
     private LocalDateTime hireDate;
     private LocalDateTime dismissalDate;
 
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "employee_role", joinColumns = @JoinColumn(name = "employee_id"))
-    @Enumerated(EnumType.STRING)
+    @ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+    @JoinTable(name="employee_roles",
+            joinColumns = {@JoinColumn(name="user_id", referencedColumnName="id")},
+            inverseJoinColumns = {@JoinColumn(name="role_id", referencedColumnName="id")}
+    )
     private Set<Role> roles;
 }

@@ -55,5 +55,7 @@ public class Order {
 
     private String engineerId;
     private Set<String> engineerRoles;
+
+    private String comment;
 }
 

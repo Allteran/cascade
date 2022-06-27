@@ -4,89 +4,150 @@ import io.allteran.cascade.managerservice.domain.Employee;
 import io.allteran.cascade.managerservice.domain.Organization;
 import io.allteran.cascade.managerservice.domain.Role;
 import io.allteran.cascade.managerservice.dto.EmployeeDTO;
+import io.allteran.cascade.managerservice.dto.EmployeeResponse;
+import io.allteran.cascade.managerservice.exception.UserFieldException;
 import io.allteran.cascade.managerservice.service.EmployeeService;
 import io.allteran.cascade.managerservice.service.OrganizationService;
+import io.allteran.cascade.managerservice.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/manage/employee")
+@CrossOrigin(origins = "http://localhost:8100")
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final OrganizationService organizationService;
+    private final RoleService roleService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, OrganizationService organizationService) {
+    public EmployeeController(EmployeeService employeeService, OrganizationService organizationService, RoleService roleService) {
         this.employeeService = employeeService;
         this.organizationService = organizationService;
+        this.roleService = roleService;
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<EmployeeDTO>> findAll() {
+    public ResponseEntity<EmployeeResponse> findAll() {
         List<Employee> employeeList = employeeService.findAll();
         if(employeeList != null && !employeeList.isEmpty()) {
             List<EmployeeDTO> employeeDTOList = employeeList.stream().map(this::convertToDTO).toList();
-            return new ResponseEntity<>(employeeDTOList, HttpStatus.OK);
+            return new ResponseEntity<>(new EmployeeResponse("OK", employeeDTOList), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new EmployeeResponse("List of employees is empty", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
-    @GetMapping("/query")
-    public ResponseEntity<List<EmployeeDTO>> findByQuery(@RequestParam List<String> id) {
+    @GetMapping("/search/id-list/")
+    public ResponseEntity<EmployeeResponse> findAllByIdList(@RequestParam List<String> id) {
         List<Employee> employeeList = employeeService.findAllById(id);
         if(employeeList != null) {
             List<EmployeeDTO> dtoList = employeeList.stream().map(this::convertToDTO).toList();
-            return new ResponseEntity<>(dtoList, HttpStatus.OK);
+            return new ResponseEntity<>(new EmployeeResponse("OK", dtoList), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new EmployeeResponse("List of employees is empty", Collections.emptyList()), HttpStatus.OK);
+        }
+    }
+    @GetMapping("/search/role")
+    public ResponseEntity<EmployeeResponse> findAllByRoles(@RequestParam List<String> role) {
+        List<Role> roleList = role.stream().map(roleService::findById).toList();
+        List<Employee> employeeList = employeeService.findAllByRoles(roleList);
+        if(employeeList != null && !employeeList.isEmpty()) {
+            List<EmployeeDTO> dtos = employeeList.stream().map(this::convertToDTO).toList();
+            return new ResponseEntity<>(new EmployeeResponse("OK", dtos), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new EmployeeResponse("List of employee with specified roles is empty", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<EmployeeDTO> findById(@PathVariable("id") String id) {
+    public ResponseEntity<EmployeeResponse> findById(@PathVariable("id") String id) {
         Employee employee = employeeService.findById(id);
         if(employee != null) {
             EmployeeDTO dto = convertToDTO(employee);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            return new ResponseEntity<>( new EmployeeResponse("OK", new ArrayList<>(Collections.singletonList(dto))), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new EmployeeResponse("Can't find user with id [" + id + "]", Collections.emptyList()),HttpStatus.OK);
         }
     }
 
     @PostMapping("/new")
-    public ResponseEntity<EmployeeDTO> create(@RequestBody EmployeeDTO dto) {
+    public ResponseEntity<EmployeeResponse> create(@RequestBody EmployeeDTO dto) {
         Employee employee = convertToEntity(dto);
         Employee createdEmployee = employeeService.create(employee);
         if(createdEmployee != null && !createdEmployee.getId().isEmpty()) {
-            return new ResponseEntity<>(convertToDTO(createdEmployee), HttpStatus.CREATED);
+            EmployeeResponse response = new EmployeeResponse("OK", Collections.singletonList(convertToDTO(createdEmployee)));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new EmployeeResponse("User cannot be created due to an error", Collections.emptyList()),HttpStatus.OK);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeeDTO> update(@PathVariable("id") String id,
-                                              @RequestBody EmployeeDTO employeeDTO) {
-        Employee updatedEmployee = employeeService.update(employeeService.findById(id), convertToEntity(employeeDTO));
+    public ResponseEntity<EmployeeResponse> update(@PathVariable("id") String id,
+                                                   @RequestBody EmployeeDTO employeeDTO) {
+        Employee updatedEmployee;
+        try {
+            updatedEmployee = employeeService.update(employeeService.findById(id), convertToEntity(employeeDTO));
+        } catch (UserFieldException ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(new EmployeeResponse("Can't update employee with id [" + id + "] due to an error", Collections.emptyList()), HttpStatus.OK);
+        }
         if(updatedEmployee != null && !updatedEmployee.getId().isEmpty()) {
-            return new ResponseEntity<>(convertToDTO(updatedEmployee), HttpStatus.ACCEPTED);
+            EmployeeResponse response = new EmployeeResponse("OK", Collections.singletonList(convertToDTO(updatedEmployee)));
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(new EmployeeResponse("Update wasn't successful due to an error", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
+    public ResponseEntity<EmployeeResponse> delete(@PathVariable("id") String id) {
         employeeService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new EmployeeResponse("User with id [" + "] was deleted successful", Collections.emptyList()), HttpStatus.OK);
     }
+
+    @PostMapping("/test/admin")
+    public ResponseEntity<EmployeeResponse> createAdmin() {
+        Employee admin = employeeService.createAdmin();
+        if(admin != null) {
+            EmployeeResponse response = new EmployeeResponse("OK", Collections.singletonList(convertToDTO(admin)));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new EmployeeResponse("Admin wasn't created due to an error, check logs", Collections.emptyList()), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/test/eng")
+    public ResponseEntity<EmployeeResponse> createEngineer() {
+        Employee engineer = employeeService.createEngineer();
+        if(engineer != null) {
+            EmployeeResponse response = new EmployeeResponse("OK", Collections.singletonList(convertToDTO(engineer)));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new EmployeeResponse("Engineer wasn't created due to an error, check logs", Collections.emptyList()), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/test/heng")
+    public ResponseEntity<EmployeeResponse> createHeadEngineer() {
+        Employee headEngineer = employeeService.createHeadEngineer();
+        if(headEngineer != null) {
+            EmployeeResponse response = new EmployeeResponse("OK", Collections.singletonList(convertToDTO(headEngineer)));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new EmployeeResponse("Head Engineer wasn't created due to an error, check logs", Collections.emptyList()), HttpStatus.OK);
+        }
+    }
+
 
     private EmployeeDTO convertToDTO(Employee employee) {
         EmployeeDTO dto = new EmployeeDTO();
@@ -105,7 +166,7 @@ public class EmployeeController {
         dto.setHireDate(employee.getHireDate());
         dto.setDismissalDate(employee.getDismissalDate());
 
-        Set<String> roles = employee.getRoles().stream().map(Enum::name).collect(Collectors.toSet());
+        Set<String> roles = employee.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         dto.setRoles(roles);
 
         return dto;
@@ -128,7 +189,7 @@ public class EmployeeController {
         entity.setHireDate(dto.getHireDate());
         entity.setDismissalDate(dto.getDismissalDate());
 
-        Set<Role> roles = dto.getRoles().stream().map(Role::valueOf).collect(Collectors.toSet());
+        Set<Role> roles = dto.getRoles().stream().map(roleService::findById).collect(Collectors.toSet());
         entity.setRoles(roles);
 
         return entity;

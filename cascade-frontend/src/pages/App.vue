@@ -9,6 +9,7 @@
         <span class="font-weight-bold">Cascade</span>
       </v-toolbar-title>
       <v-btn text
+             @click="showOrderList"
       >
         Создание заявки
       </v-btn>
@@ -49,6 +50,9 @@
       methods: {
         showAdminPanel() {
           this.$router.push('/adm/panel')
+        },
+        showOrderList() {
+          this.$router.push('/workshop/order')
         }
       }
     }

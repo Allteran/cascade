@@ -2,6 +2,7 @@ package io.allteran.cascade.managerservice.controller;
 
 import io.allteran.cascade.managerservice.domain.POSType;
 import io.allteran.cascade.managerservice.domain.PointOfSales;
+import io.allteran.cascade.managerservice.dto.POSResponse;
 import io.allteran.cascade.managerservice.dto.PointOfSalesDTO;
 import io.allteran.cascade.managerservice.exception.NotFoundException;
 import io.allteran.cascade.managerservice.service.POSService;
@@ -10,10 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/manage/pos")
+@CrossOrigin(origins = "http://localhost:8100")
 public class POSController {
     private final POSService posService;
 
@@ -23,79 +26,78 @@ public class POSController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<PointOfSalesDTO>> findAll() {
+    public ResponseEntity<POSResponse> findAll() {
         List<PointOfSales> posList = posService.findAll();
         if(posList != null && !posList.isEmpty()) {
             List<PointOfSalesDTO> dtoList = posList.stream().map(this::convertToDTO).toList();
-            return new ResponseEntity<>(dtoList, HttpStatus.OK);
+            return new ResponseEntity<>(new POSResponse("OK", dtoList), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new POSResponse("List of Point Of Sales is empty", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
-    @GetMapping("/query")
-    public ResponseEntity<List<PointOfSalesDTO>> findAllByQuery(@RequestParam List<String> id) {
+    @GetMapping("/search/id-list/")
+    public ResponseEntity<POSResponse> findAllByIdList(@RequestParam List<String> id) {
         List<PointOfSales> posList;
         try {
             posList = posService.findAllById(id);
         } catch (NotFoundException ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new POSResponse("Cant find point of sales with certain IDs cause of error", Collections.emptyList()), HttpStatus.OK);
         }
         if(posList != null && !posList.isEmpty()) {
             List<PointOfSalesDTO> dtoList = posList.stream().map(this::convertToDTO).toList();
-            return new ResponseEntity<>(dtoList, HttpStatus.OK);
+            return new ResponseEntity<>(new POSResponse("OK", dtoList), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
+            return new ResponseEntity<>(new POSResponse("Cant find point of sales with certain IDs", Collections.emptyList()), HttpStatus.OK);
         }
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PointOfSalesDTO> findById(@PathVariable("id") String id) {
+    public ResponseEntity<POSResponse> findById(@PathVariable("id") String id) {
         PointOfSales pos;
         try {
             pos = posService.findById(id);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new POSResponse("Cant find point of sales with id [" + id + "] due to an error", Collections.emptyList()), HttpStatus.OK);
         }
         if(pos != null && !pos.getId().isEmpty()) {
             PointOfSalesDTO posDto = convertToDTO(pos);
-            return new ResponseEntity<>(posDto, HttpStatus.OK);
+            return new ResponseEntity<>(new POSResponse("OK", Collections.singletonList(posDto)), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new POSResponse("Cant find point of sales with id [" + id + "]", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
     @PostMapping("/new")
-    public ResponseEntity<PointOfSalesDTO> create(@RequestBody PointOfSalesDTO posDTO) {
+    public ResponseEntity<POSResponse> create(@RequestBody PointOfSalesDTO posDTO) {
         PointOfSales createdPOS = posService.create(convertToEntity(posDTO));
         if(createdPOS != null && !createdPOS.getId().isEmpty()) {
             PointOfSalesDTO createdPosDTO = convertToDTO(createdPOS);
-            return new ResponseEntity<>(createdPosDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(new POSResponse("OK", Collections.singletonList(createdPosDTO)), HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new POSResponse("Can't create Point Of Sales", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<PointOfSalesDTO> update(@PathVariable("id") String id,
-                                                  @RequestBody PointOfSalesDTO posDTO) {
+    public ResponseEntity<POSResponse> update(@PathVariable("id") String id,
+                                              @RequestBody PointOfSalesDTO posDTO) {
         PointOfSales updatedPOS = posService.update(convertToEntity(posDTO), id);
         if(updatedPOS != null && !updatedPOS.getId().isEmpty()) {
             PointOfSalesDTO updatedPosDTO = convertToDTO(updatedPOS);
-            return new ResponseEntity<>(updatedPosDTO, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new POSResponse("OK", Collections.singletonList(updatedPosDTO)), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(new POSResponse("Can't update Point Of Sales with ID [" + id + "]", Collections.emptyList()), HttpStatus.OK);
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
+    public ResponseEntity<POSResponse> delete(@PathVariable("id") String id) {
         posService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new POSResponse("POS with ID [" + "] were deleted successfully" , Collections.emptyList()), HttpStatus.OK);
     }
 
     private PointOfSalesDTO convertToDTO(PointOfSales pos) {
@@ -129,3 +131,5 @@ public class POSController {
         return pos;
     }
 }
+
+

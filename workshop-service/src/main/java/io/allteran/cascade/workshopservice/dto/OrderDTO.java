@@ -54,4 +54,6 @@ public class OrderDTO implements Serializable {
     private String engineerId;
     private String engineerName;
     private Set<String> engineerRoles;
+
+    private String comment;
 }
