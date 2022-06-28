@@ -119,7 +119,9 @@ export default {
     },
   },
   beforeMount() {
-    this.getDeviceTypeList()
+    if(this.deviceTypeList.length === 0) {
+      this.getDeviceTypeList()
+    }
   },
   watch: {
     dialog(val) {

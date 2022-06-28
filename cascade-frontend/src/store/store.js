@@ -2,12 +2,13 @@ import Vue from 'vue'
 // import 'es6-promise/auto' //to support old browsers
 import Vuex from 'vuex'
 import axios from 'axios'
+import ConstConfig from 'util/ConstConfig'
 
 Vue.use(Vuex)
-const workshopUrl = 'http://localhost:9090/api/v1/workshop'
-const manageUrl = 'http://localhost:9091/api/v1/manage'
+const workshopUrl = ConstConfig.url.workshopUrl
+const manageUrl = ConstConfig.url.manageUrl
 
-const engineerRoles = [{role: 'ff808181818bec9601818bf493740001'},{role: 'ff808181818bec9601818bf4ba0b0002'}]
+const engineerRoles = [{role: ConstConfig.role.engineer},{role: ConstConfig.role.headEngineer}]
 
 export default new Vuex.Store({
     state: {
@@ -394,7 +395,7 @@ export default new Vuex.Store({
          * Employee Engineer action
          */
         async getEngineerList({commit}) {
-            await axios.get(manageUrl + '/employee/search/role', {
+            await axios.get(manageUrl + '/employee/search/role/', {
                 params: engineerRoles,
                 paramsSerializer: params => {
                     return params.map((keyValuePair) => new URLSearchParams(keyValuePair)).join("&")

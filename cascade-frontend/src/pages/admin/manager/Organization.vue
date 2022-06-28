@@ -133,7 +133,9 @@ export default {
     },
   },
   beforeMount() {
-    this.getOrganizationList()
+    if(this.orgList.length === 0) {
+      this.getOrganizationList()
+    }
   },
   watch: {
     dialog(val) {

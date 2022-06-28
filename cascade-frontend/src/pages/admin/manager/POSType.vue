@@ -119,7 +119,9 @@ export default {
     },
   },
   beforeMount() {
-    this.getPOSTypeList()
+    if(this.posTypeList.length === 0) {
+      this.getPOSTypeList()
+    }
   },
   watch: {
     dialog(val) {

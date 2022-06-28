@@ -119,7 +119,9 @@ export default {
     },
   },
   beforeMount() {
-    this.getRoleList()
+    if(this.roleList.length === 0) {
+      this.getRoleList()
+    }
   },
   watch: {
     dialog(val) {

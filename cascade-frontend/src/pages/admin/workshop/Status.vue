@@ -119,7 +119,9 @@ export default {
     },
   },
   beforeMount() {
-    this.getRepairStatusList()
+    if(this.repairStatusList.length === 0) {
+      this.getRepairStatusList()
+    }
   },
   watch: {
     dialog(val) {

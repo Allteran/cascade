@@ -288,7 +288,7 @@ export default {
       authorName: '',
       engineerId: '',
       engineerName: '',
-      engineerRoles: {}
+      engineerRoles: []
 
     },
     valid: false,
@@ -332,13 +332,8 @@ export default {
   beforeMount() {
     this.getDeviceTypeList()
     this.getPOSList()
-    console.log('going to pull engineer list')
-    console.log('engList = ', this.engineerList)
-    console.log('engList.length === 0? :', this.engineerList.length === 0)
     if(this.engineerList.length === 0) {
-      console.log('pulling list')
       this.getEngineerList()
-      console.log('after pull engList = ', this.engineerList)
     }
   },
   methods: {
@@ -347,9 +342,18 @@ export default {
       this.valid = this.$refs.form.validate()
     },
     prepareOrder() {
-      this.order.pos = this.selectedPOS
-      this.order.deviceType = this.selectedType
-      this.order.author = this.profile
+      this.order.posId = this.selectedPOS.id
+      this.order.posShortName = this.selectedPOS.shortName
+
+      this.order.deviceTypeId = this.selectedType.id
+      this.order.deviceTypeName = this.selectedType.name
+
+      this.order.engineerId = this.selectedEngineer.id
+      this.order.engineerName = this.selectedEngineer.firstName + " " +  this.selectedEngineer.lastName
+      this.order.engineerRoles = this.selectedEngineer.roles
+
+      //TODO: DONT FORGET TO REPLACE THIS LINE WITH VALID CODE
+      this.order.authorId = 'ff80818181a5579d0181a55840580000'
       this.order.issueDate = '2000-01-01T01:01:00'
       this.order.creationDate = new Date().toISOString()
     },
@@ -376,7 +380,7 @@ export default {
     redirectToOrderList() {
       this.certificateDialog = false;
       this.saveOrderDialog = false;
-      this.$router.push('/repair/order')
+      this.$router.push('/workshop/order')
     }
   }
 }

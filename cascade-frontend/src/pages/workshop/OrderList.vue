@@ -90,6 +90,8 @@ export default {
   beforeMount() {
     this.getRepairOrderList().then(res => {
       this.loading = false
+    }).catch(er => {
+      this.loading = false
     })
   },
   computed: {

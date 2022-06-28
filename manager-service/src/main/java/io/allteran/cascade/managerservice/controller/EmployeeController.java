@@ -73,7 +73,7 @@ public class EmployeeController {
         Employee employee = employeeService.findById(id);
         if(employee != null) {
             EmployeeDTO dto = convertToDTO(employee);
-            return new ResponseEntity<>( new EmployeeResponse("OK", new ArrayList<>(Collections.singletonList(dto))), HttpStatus.OK);
+            return new ResponseEntity<>( new EmployeeResponse("OK", Collections.singletonList(dto)), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new EmployeeResponse("Can't find user with id [" + id + "]", Collections.emptyList()),HttpStatus.OK);
         }

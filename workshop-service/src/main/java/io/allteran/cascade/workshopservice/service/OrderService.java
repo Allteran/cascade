@@ -19,13 +19,13 @@ import java.util.UUID;
 public class OrderService {
     private static final LocalDate DEFAULT_DATE = LocalDate.of(1,1,1);
     @Value("${order.status.unpaid}")
-    private static String STATUS_UNPAID_ID;
+    private String STATUS_UNPAID_ID;
     @Value("${order.status.created}")
-    private static String STATUS_CREATED_ID;
+    private String STATUS_CREATED_ID;
     @Value("${order.status.paid}")
-    private static String STATUS_PAID_ID;
-    @Value("${user.role.head-engineer}")
-    private static String ROLE_HEAD_ENGINEER;
+    private String STATUS_PAID_ID;
+    @Value("${role.head-engineer}")
+    private String ROLE_HEAD_ENGINEER;
 
     private final OrderRepository orderRepository;
     private final StatusService statusService;
