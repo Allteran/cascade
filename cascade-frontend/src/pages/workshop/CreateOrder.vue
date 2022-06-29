@@ -337,7 +337,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getDeviceTypeList', 'getPOSList', 'addRepairOrder', 'getEngineerList']),
+    ...mapActions(['getDeviceTypeList', 'getPOSList', 'addRepairOrder', 'getEngineerList', 'generateAcceptanceCertificate']),
     validate() {
       this.valid = this.$refs.form.validate()
     },
@@ -361,8 +361,7 @@ export default {
       this.validate()
       if(this.valid) {
         this.prepareOrder()
-        console.log("IMITATION OF GENERATING ACCEPTANCE CERTIFICATE")
-        // this.generateAcceptanceCertificate(this.order)
+        this.generateAcceptanceCertificate(this.order)
         this.certificateDialog = true;
       }
     },

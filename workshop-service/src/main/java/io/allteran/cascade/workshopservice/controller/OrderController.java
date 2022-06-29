@@ -6,14 +6,18 @@ import io.allteran.cascade.workshopservice.domain.Status;
 import io.allteran.cascade.workshopservice.dto.*;
 import io.allteran.cascade.workshopservice.exception.WorkshopException;
 import io.allteran.cascade.workshopservice.service.OrderService;
+import io.allteran.cascade.workshopservice.service.SheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,15 +26,21 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:8100")
 @Slf4j
 public class OrderController {
-    private static final String MANAGE_SERVICE_EMPLOYEE_URI = "/api/v1/manage/employee/";
-    public static final String MANAGE_SERVICE_POS_URI = "/api/v1/manage/pos/";
+    @Value("${uri.manage-service.employee}")
+    private String URI_EMPLOYEE;
+    @Value("${uri.manage-service.pos}")
+    public String URI_POS;
     private final OrderService  orderService;
+    private final SheetService sheetService;
     private final WebClient webClient;
     private final ModelMapper modelMapper;
 
+    private ByteArrayInputStream acceptanceCertificate;
+
     @Autowired
-    public OrderController(OrderService orderService, WebClient webClient, ModelMapper modelMapper) {
+    public OrderController(OrderService orderService, SheetService sheetService, WebClient webClient, ModelMapper modelMapper) {
         this.orderService = orderService;
+        this.sheetService = sheetService;
         this.webClient = webClient;
         this.modelMapper = modelMapper;
     }
@@ -42,7 +52,7 @@ public class OrderController {
         if(orders != null && !orders.isEmpty()) {
             List<String> employeeIdList = orders.stream().map(Order::getAuthorId).toList();
             EmployeeResponse employeeResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "/search/id-list/",
+                    .uri(URI_EMPLOYEE + "/search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id",employeeIdList).build())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
@@ -50,7 +60,7 @@ public class OrderController {
 
             List<String> posIdList = orders.stream().map(Order::getPosId).toList();
             POSResponse posResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_POS_URI + "search/id-list/",
+                    .uri(URI_POS + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", posIdList).build())
                     .retrieve()
                     .bodyToMono(POSResponse.class)
@@ -58,7 +68,7 @@ public class OrderController {
 
             List<String> engineerIdList = orders.stream().map(Order::getEngineerId).toList();
             EmployeeResponse engineerResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + "search/id-list/",
+                    .uri(URI_EMPLOYEE + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", engineerIdList).build())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
@@ -116,17 +126,17 @@ public class OrderController {
         Order order = orderService.findById(orderId);
         if(order != null && !order.getId().isEmpty()) {
             EmployeeResponse employeeResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + order.getAuthorId())
+                    .uri(URI_EMPLOYEE + order.getAuthorId())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
                     .block();
             POSResponse posResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_POS_URI + order.getPosId())
+                    .uri(URI_POS + order.getPosId())
                     .retrieve()
                     .bodyToMono(POSResponse.class)
                     .block();
             EmployeeResponse engineerResponse = webClient.get()
-                    .uri(MANAGE_SERVICE_EMPLOYEE_URI + order.getEngineerId())
+                    .uri(URI_EMPLOYEE + order.getEngineerId())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
                     .block();
@@ -161,17 +171,17 @@ public class OrderController {
     @PostMapping("/new")
     public ResponseEntity<OrderResponse> create(@RequestBody OrderDTO orderDTO) {
         EmployeeResponse employeeResponse = webClient.get()
-                .uri(MANAGE_SERVICE_EMPLOYEE_URI + orderDTO.getAuthorId())
+                .uri(URI_EMPLOYEE + orderDTO.getAuthorId())
                 .retrieve()
                 .bodyToMono(EmployeeResponse.class)
                 .block();
         POSResponse posResponse = webClient.get()
-                .uri(MANAGE_SERVICE_POS_URI + orderDTO.getPosId())
+                .uri(URI_POS + orderDTO.getPosId())
                 .retrieve()
                 .bodyToMono(POSResponse.class)
                 .block();
         EmployeeResponse engineerResponse = webClient.get()
-                .uri(MANAGE_SERVICE_EMPLOYEE_URI + orderDTO.getEngineerId())
+                .uri(URI_EMPLOYEE + orderDTO.getEngineerId())
                 .retrieve()
                 .bodyToMono(EmployeeResponse.class)
                 .block();
@@ -205,10 +215,28 @@ public class OrderController {
         }
     }
 
+    @PostMapping("file/acceptance_cert")
+    public void generateAcceptanceCertificate(@RequestBody OrderDTO orderDTO) {
+        try {
+            acceptanceCertificate = sheetService.generateAcceptanceCertificate(convertToEntity(orderDTO));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("file/acceptance_cert")
+    public HttpEntity<ByteArrayResource> downloadAcceptanceCertificate() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "force-download"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ACCEPTANCE_CERTIFICATE.xlsx");
+
+        return new HttpEntity<>(new ByteArrayResource(acceptanceCertificate.readAllBytes()),headers);
+    }
+
     @GetMapping("test/get/emp")
     public ResponseEntity<EmployeeDTO> getEmployee() {
         EmployeeDTO dto = webClient.get()
-                .uri(MANAGE_SERVICE_EMPLOYEE_URI + "ff80818181a5579d0181a55840580000")
+                .uri(URI_EMPLOYEE + "ff80818181a5579d0181a55840580000")
                 .retrieve()
                 .bodyToMono(EmployeeDTO.class)
                 .block();
@@ -235,17 +263,17 @@ public class OrderController {
             updatedOrder = orderService.update(orderService.findById(orderFromDbId), order);
             if(updatedOrder != null && !updatedOrder.getId().isEmpty()) {
                 EmployeeResponse employeeResponse = webClient.get()
-                        .uri(MANAGE_SERVICE_EMPLOYEE_URI + order.getAuthorId())
+                        .uri(URI_EMPLOYEE + order.getAuthorId())
                         .retrieve()
                         .bodyToMono(EmployeeResponse.class)
                         .block();
                 POSResponse posResponse = webClient.get()
-                        .uri(MANAGE_SERVICE_POS_URI + order.getPosId())
+                        .uri(URI_POS + order.getPosId())
                         .retrieve()
                         .bodyToMono(POSResponse.class)
                         .block();
                 EmployeeResponse engineerResponse = webClient.get()
-                        .uri(MANAGE_SERVICE_EMPLOYEE_URI + order.getEngineerId())
+                        .uri(URI_EMPLOYEE + order.getEngineerId())
                         .retrieve()
                         .bodyToMono(EmployeeResponse.class)
                         .block();

@@ -405,5 +405,26 @@ export default new Vuex.Store({
                     commit('getEngineerListMutation', result.data.employeeDTOList)
                 })
         },
+
+        /**
+         * Module to generate and download certificates
+         */
+        async generateAcceptanceCertificate({commit}, order) {
+            await axios.post(workshopUrl + "/order/file/acceptance_cert", order).then(result => {
+                axios({
+                    url: workshopUrl + "/order/file/acceptance_cert",
+                    method: 'GET',
+                    responseType: 'blob',
+                }).then((response) => {
+                    let fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                    let fileLink = document.createElement('a');
+
+                    fileLink.href = fileURL;
+                    fileLink.setAttribute('download', 'ACCEPTANCE_CERTIFICATE.xlsx');
+                    document.body.appendChild(fileLink);
+                    fileLink.click();
+                })
+            })
+        }
     }
 })
