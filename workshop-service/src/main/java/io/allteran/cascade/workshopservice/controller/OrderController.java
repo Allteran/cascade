@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,16 +31,16 @@ public class OrderController {
     public String URI_POS;
     private final OrderService  orderService;
     private final SheetService sheetService;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     private final ModelMapper modelMapper;
 
     private ByteArrayInputStream acceptanceCertificate;
 
     @Autowired
-    public OrderController(OrderService orderService, SheetService sheetService, WebClient webClient, ModelMapper modelMapper) {
+    public OrderController(OrderService orderService, SheetService sheetService, WebClient.Builder webClientBuilder, ModelMapper modelMapper) {
         this.orderService = orderService;
         this.sheetService = sheetService;
-        this.webClient = webClient;
+        this.webClientBuilder = webClientBuilder;
         this.modelMapper = modelMapper;
     }
 
@@ -51,7 +50,7 @@ public class OrderController {
         List<Order> orders = orderService.findAll();
         if(orders != null && !orders.isEmpty()) {
             List<String> employeeIdList = orders.stream().map(Order::getAuthorId).toList();
-            EmployeeResponse employeeResponse = webClient.get()
+            EmployeeResponse employeeResponse = webClientBuilder.build().get()
                     .uri(URI_EMPLOYEE + "/search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id",employeeIdList).build())
                     .retrieve()
@@ -59,7 +58,7 @@ public class OrderController {
                     .block();
 
             List<String> posIdList = orders.stream().map(Order::getPosId).toList();
-            POSResponse posResponse = webClient.get()
+            POSResponse posResponse = webClientBuilder.build().get()
                     .uri(URI_POS + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", posIdList).build())
                     .retrieve()
@@ -67,7 +66,7 @@ public class OrderController {
                     .block();
 
             List<String> engineerIdList = orders.stream().map(Order::getEngineerId).toList();
-            EmployeeResponse engineerResponse = webClient.get()
+            EmployeeResponse engineerResponse = webClientBuilder.build().get()
                     .uri(URI_EMPLOYEE + "search/id-list/",
                             uriBuilder -> uriBuilder.queryParam("id", engineerIdList).build())
                     .retrieve()
@@ -125,17 +124,17 @@ public class OrderController {
     public ResponseEntity<OrderResponse> findById(@PathVariable("orderId") String orderId) {
         Order order = orderService.findById(orderId);
         if(order != null && !order.getId().isEmpty()) {
-            EmployeeResponse employeeResponse = webClient.get()
+            EmployeeResponse employeeResponse = webClientBuilder.build().get()
                     .uri(URI_EMPLOYEE + order.getAuthorId())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
                     .block();
-            POSResponse posResponse = webClient.get()
+            POSResponse posResponse = webClientBuilder.build().get()
                     .uri(URI_POS + order.getPosId())
                     .retrieve()
                     .bodyToMono(POSResponse.class)
                     .block();
-            EmployeeResponse engineerResponse = webClient.get()
+            EmployeeResponse engineerResponse = webClientBuilder.build().get()
                     .uri(URI_EMPLOYEE + order.getEngineerId())
                     .retrieve()
                     .bodyToMono(EmployeeResponse.class)
@@ -170,17 +169,17 @@ public class OrderController {
 
     @PostMapping("/new")
     public ResponseEntity<OrderResponse> create(@RequestBody OrderDTO orderDTO) {
-        EmployeeResponse employeeResponse = webClient.get()
+        EmployeeResponse employeeResponse = webClientBuilder.build().get()
                 .uri(URI_EMPLOYEE + orderDTO.getAuthorId())
                 .retrieve()
                 .bodyToMono(EmployeeResponse.class)
                 .block();
-        POSResponse posResponse = webClient.get()
+        POSResponse posResponse = webClientBuilder.build().get()
                 .uri(URI_POS + orderDTO.getPosId())
                 .retrieve()
                 .bodyToMono(POSResponse.class)
                 .block();
-        EmployeeResponse engineerResponse = webClient.get()
+        EmployeeResponse engineerResponse = webClientBuilder.build().get()
                 .uri(URI_EMPLOYEE + orderDTO.getEngineerId())
                 .retrieve()
                 .bodyToMono(EmployeeResponse.class)
@@ -235,7 +234,7 @@ public class OrderController {
 
     @GetMapping("test/get/emp")
     public ResponseEntity<EmployeeDTO> getEmployee() {
-        EmployeeDTO dto = webClient.get()
+        EmployeeDTO dto = webClientBuilder.build().get()
                 .uri(URI_EMPLOYEE + "ff80818181a5579d0181a55840580000")
                 .retrieve()
                 .bodyToMono(EmployeeDTO.class)
@@ -246,7 +245,7 @@ public class OrderController {
     @GetMapping("test/get/pos")
     public ResponseEntity<POSResponse> getPos() {
         String id = "ff80818181a553210181a556b5030003";
-        POSResponse response = webClient.get()
+        POSResponse response = webClientBuilder.build().get()
                 .uri("/api/v1/manage/pos/{id}", id)
                 .retrieve()
                 .bodyToMono(POSResponse.class)
@@ -262,17 +261,17 @@ public class OrderController {
         try {
             updatedOrder = orderService.update(orderService.findById(orderFromDbId), order);
             if(updatedOrder != null && !updatedOrder.getId().isEmpty()) {
-                EmployeeResponse employeeResponse = webClient.get()
+                EmployeeResponse employeeResponse = webClientBuilder.build().get()
                         .uri(URI_EMPLOYEE + order.getAuthorId())
                         .retrieve()
                         .bodyToMono(EmployeeResponse.class)
                         .block();
-                POSResponse posResponse = webClient.get()
+                POSResponse posResponse = webClientBuilder.build().get()
                         .uri(URI_POS + order.getPosId())
                         .retrieve()
                         .bodyToMono(POSResponse.class)
                         .block();
-                EmployeeResponse engineerResponse = webClient.get()
+                EmployeeResponse engineerResponse = webClientBuilder.build().get()
                         .uri(URI_EMPLOYEE + order.getEngineerId())
                         .retrieve()
                         .bodyToMono(EmployeeResponse.class)

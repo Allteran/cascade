@@ -1,6 +1,7 @@
 package io.allteran.cascade.workshopservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -16,13 +17,13 @@ public class WebClientConfig {
     private String MANAGE_BASE_URL;
 
     @Bean
-    public WebClient webClient() {
+    @LoadBalanced
+    public WebClient.Builder webClientBuilder() {
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(MANAGE_BASE_URL);
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT);
         return WebClient.builder()
                 .uriBuilderFactory(factory)
                 .baseUrl(MANAGE_BASE_URL)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     }
 }

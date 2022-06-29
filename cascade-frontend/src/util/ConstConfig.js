@@ -1,7 +1,7 @@
 export default {
     url : {
-        workshopUrl: 'http://localhost:9090/api/v1/workshop',
-        manageUrl: 'http://localhost:9091/api/v1/manage',
+        workshopUrl: 'http://localhost:8080/api/v1/workshop',
+        manageUrl: 'http://localhost:8080/api/v1/manage',
     },
     status: {
         created: 'd179baa7-91b5-4937-b03f-4cb88b68f63c',

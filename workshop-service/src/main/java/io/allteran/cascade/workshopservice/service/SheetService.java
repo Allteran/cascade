@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.*;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -31,20 +30,20 @@ public class SheetService {
     private String URI_EMPLOYEE;
     @Value("${uri.manage-service.pos}")
     private String URI_POS;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
 
     @Autowired
-    public SheetService(WebClient webClient) {
-        this.webClient = webClient;
+    public SheetService(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
     }
 
     public ByteArrayInputStream generateAcceptanceCertificate(Order order) throws IOException {
-        EmployeeResponse authorResponse = webClient.get()
+        EmployeeResponse authorResponse = webClientBuilder.build().get()
                 .uri(URI_EMPLOYEE + order.getAuthorId())
                 .retrieve()
                 .bodyToMono(EmployeeResponse.class)
                 .block();
-        POSResponse posResponse = webClient.get()
+        POSResponse posResponse = webClientBuilder.build().get()
                 .uri(URI_POS + order.getPosId())
                 .retrieve()
                 .bodyToMono(POSResponse.class)
