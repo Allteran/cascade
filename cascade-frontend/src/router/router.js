@@ -10,12 +10,15 @@ import Role from 'pages/admin/manager/Role.vue'
 import Organization from 'pages/admin/manager/Organization.vue'
 import POSType from 'pages/admin/manager/POSType.vue'
 import PointOfSales from 'pages/admin/manager/PointOfSales.vue'
+import LoginPage from 'pages/LoginPage.vue'
+import NotFound from 'pages/NotFound.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
     {path: '/', component: StartPage},
-    {path:'/adm/panel', component: AdminPanel},
+    {path: '/login', component: LoginPage},
+    {path: '/adm/panel', component: AdminPanel},
     {path: '/adm/repair/device-type', component: RepairDeviceType},
     {path: '/adm/repair/status', component: RepairDeviceStatus},
     {path: '/adm/manage/employee-role', component: Role},
@@ -24,6 +27,8 @@ const routes = [
     {path: '/adm/manage/pos', component: PointOfSales},
     {path: '/workshop/order', component: OrderList},
     {path: '/workshop/order/new', component: CreateOrder},
+    {path: '/404', component: NotFound},
+    {path: '*', redirect: '/404'}
 ]
 
 export default new VueRouter({

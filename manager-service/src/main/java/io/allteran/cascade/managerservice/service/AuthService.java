@@ -2,6 +2,7 @@ package io.allteran.cascade.managerservice.service;
 
 import io.allteran.cascade.managerservice.domain.Employee;
 import io.allteran.cascade.managerservice.dto.CredentialsDTO;
+import io.allteran.cascade.managerservice.dto.EmployeeDTO;
 import io.allteran.cascade.managerservice.exception.NotFoundException;
 import io.allteran.cascade.managerservice.exception.UserFieldException;
 import io.jsonwebtoken.Claims;
@@ -42,7 +43,8 @@ public class AuthService {
             throw new NotFoundException("User with phone [" + credentials.getLogin() + "] not found");
         }
 
-        if(passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()),user.getPassword())) {
+        if(passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()), user.getPassword())) {
+            user.setToken(createToken(user));
             return user;
         }
         throw new UserFieldException("Invalid password");
@@ -60,6 +62,7 @@ public class AuthService {
         }
         return user;
     }
+
     private String createToken(Employee user) {
         Claims claims = Jwts.claims().setSubject(user.getPhone());
         Date now = new Date();

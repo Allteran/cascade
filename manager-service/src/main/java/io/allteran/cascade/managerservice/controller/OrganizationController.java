@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/manage/organization")
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 public class OrganizationController {
     private final OrganizationService orgService;
     private final ModelMapper modelMapper;

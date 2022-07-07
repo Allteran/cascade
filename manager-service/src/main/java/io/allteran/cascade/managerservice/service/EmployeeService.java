@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepo;
     private final OrganizationService orgService;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
     @Value("${role.employee}")
     private String ROLE_EMPLOYEE_ID;
     @Value("${role.admin}")
@@ -37,10 +39,11 @@ public class EmployeeService {
     private String ORGANIZATION_DEFAULT_ID;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepo, OrganizationService orgService, RoleService roleService) {
+    public EmployeeService(EmployeeRepository employeeRepo, OrganizationService orgService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.employeeRepo = employeeRepo;
         this.orgService = orgService;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Employee> findAll() {
@@ -89,23 +92,24 @@ public class EmployeeService {
             throw new UserFieldException("Phone number should have format 79xxxxxxxxx");
         }
         user.setCreationDate(LocalDateTime.now());
-        //TODO: encode user password
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Collections.singleton(roleService.findById(ROLE_EMPLOYEE_ID)));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPasswordConfirm("");
+        if(user.getRoles().isEmpty()) {
+            user.setRoles(Collections.singleton(roleService.findById(ROLE_EMPLOYEE_ID)));
+        }
         user.setHireDate(user.getCreationDate());
         user.setDismissalDate(DEFAULT_DATE);
 
-        return user;
+        return employeeRepo.save(user);
     }
 
     public Employee update(Employee userFromDb, Employee user) {
         //TODO: using passwordEncoder check if typed passwords matches
-        boolean isPasswordsMatches = userFromDb.getPassword().equals(user.getPassword());
+        boolean isPasswordsMatches = passwordEncoder.matches(user.getPassword(), userFromDb.getPassword());
         if(user.getNewPassword() != null && user.getPasswordConfirm() != null &&!user.getNewPassword().isEmpty()) {
             if(isPasswordsMatches) {
                 if(user.getNewPassword().equals(user.getPasswordConfirm())) {
-                    //TODO: dont forget to encode
-                    userFromDb.setPassword(user.getNewPassword());
+                    userFromDb.setPassword(passwordEncoder.encode(user.getNewPassword()));
                 } else {
                     throw new UserFieldException("New password doesnt match to password from confirm field");
                 }
@@ -130,7 +134,7 @@ public class EmployeeService {
 
         admin.setCreationDate(LocalDateTime.now());
         //TODO: encode user password
-        admin.setPassword("123456789");
+        admin.setPassword(passwordEncoder.encode("123456789"));
         admin.setHireDate(LocalDateTime.now());
         admin.setDismissalDate(DEFAULT_DATE);
         Set<Role> roles = new HashSet<>();
@@ -149,6 +153,14 @@ public class EmployeeService {
 
         return employeeRepo.save(admin);
     }
+    
+    public Employee updateRaw(Employee user, String userFromDbId) {
+        Employee userFromDb = findById(userFromDbId);
+        userFromDb.setPassword(passwordEncoder.encode(user.getNewPassword()));
+        BeanUtils.copyProperties(user, userFromDb, "id", "password", "newPassword", "passwordConfirm");
+
+        return employeeRepo.save(userFromDb);
+    }
 
     public Employee createEngineer() {
         Employee engineer = new Employee();
@@ -159,7 +171,7 @@ public class EmployeeService {
         engineer.setCreationDate(LocalDateTime.now());
         engineer.setHireDate(LocalDateTime.now());
         engineer.setDismissalDate(DEFAULT_DATE);
-        engineer.setPassword("11111111");
+        engineer.setPassword(passwordEncoder.encode("11111111"));
         engineer.setRoles(Collections.singleton(roleService.findById(ROLE_ENGINEER_ID)));
 
         Organization org = orgService.findById(ORGANIZATION_DEFAULT_ID);
@@ -177,7 +189,7 @@ public class EmployeeService {
         headEngineer.setCreationDate(LocalDateTime.now());
         headEngineer.setHireDate(LocalDateTime.now());
         headEngineer.setDismissalDate(DEFAULT_DATE);
-        headEngineer.setPassword("22222222");
+        headEngineer.setPassword(passwordEncoder.encode("22222222"));
 
         headEngineer.setRoles(Collections.singleton(roleService.findById(ROLE_HEAD_ENGINEER_ID)));
 

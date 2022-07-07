@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/manage/pos-type")
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 public class POSTypeController {
     private final POSTypeService posTypeService;
     private final ModelMapper modelMapper;

@@ -10,6 +10,7 @@ import java.util.Set;
 public class EmployeeDTO implements Serializable {
     private String id;
     private String phone;
+    private String token;
     private String firstName;
     private String lastName;
     private String password;

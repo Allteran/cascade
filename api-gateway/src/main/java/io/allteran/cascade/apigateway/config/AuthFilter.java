@@ -28,13 +28,13 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
             String authHeader = exchange.getRequest().getHeaders().get(org.springframework.http.HttpHeaders.AUTHORIZATION).get(0);
             String[] parts = authHeader.split(" ");
 
-            if(parts.length != 2 || "Bearer".equals(parts[0])) {
+            if(parts.length != 2 || !"Bearer".equals(parts[0])) {
                 throw new RuntimeException("Incorrect auth structure");
             }
 
             return webClientBuilder.build()
                     .post()
-                    .uri("http://manager-service/api/v1/employee/validateToken?token" + parts[1])
+                    .uri("http://manager-service/api/v1/auth/validateToken?token=" + parts[1])
                     .retrieve()
                     .bodyToMono(EmployeeDTO.class)
                     .map(user -> {

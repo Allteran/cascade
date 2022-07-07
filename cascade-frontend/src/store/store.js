@@ -20,7 +20,8 @@ export default new Vuex.Store({
         posList:[],
         engineerList: [],
         roleList:[],
-        orgList:[]
+        orgList:[],
+        token: null
     },
     mutations: {
         /**
@@ -191,20 +192,37 @@ export default new Vuex.Store({
             }
         },
 
+        saveToken(state, token) {
+            state.token = token
+        },
+        clearToken(state) {
+            state.token = null
+        }
+
     },
     actions: {
         /**
          * Repair Device Type actions
          */
         async getDeviceTypeList({commit}) {
-            await axios.get(workshopUrl + '/device-type/list')
+            await axios.get(workshopUrl + '/device-type/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('getDeviceTypeListMutation', result.data)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
         async addDeviceType({commit}, type) {
-            await axios.post(workshopUrl + '/device-type/new', type)
+            await axios.post(workshopUrl + '/device-type/new', type, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.deviceTypeList.findIndex(item => item.id === result.data.id)
                     if(index > -1) {
@@ -212,25 +230,44 @@ export default new Vuex.Store({
                     } else {
                         commit('addDeviceTypeListMutation', type)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
+
                 })
         },
         async updateDeviceType({commit}, type) {
-            await axios.put(workshopUrl + '/device-type/update/' + type.id, type)
+            await axios.put(workshopUrl + '/device-type/update/' + type.id, type, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updateDeviceTypeMutation', type)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         /**
          * Repair Device Status actions
          */
         async getRepairStatusList({commit}) {
-            await axios.get(workshopUrl + '/status/list')
+            await axios.get(workshopUrl + '/status/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('getRepairStatusListMutation', result.data)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addRepairStatus({commit}, status) {
-            await axios.post(workshopUrl + '/status/new', status)
+            await axios.post(workshopUrl + '/status/new', status, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.repairStatusList.findIndex(item => item.id === result.data.id)
                     if(index > -1) {
@@ -238,12 +275,20 @@ export default new Vuex.Store({
                     } else {
                         commit('addRepairStatusMutation', status)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updateRepairStatus ({commit}, status) {
-            await axios.put(workshopUrl + '/status/update/' + status.id, status)
+            await axios.put(workshopUrl + '/status/update/' + status.id, status, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updateRepairStatusMutation', status)
+                }).catch(er => {
+                    throw new Error('Something went wrokg', er)
                 })
         },
 
@@ -251,13 +296,23 @@ export default new Vuex.Store({
          * Repair Device Order actions
          */
         async getRepairOrderList({commit}) {
-            await axios.get(workshopUrl + '/order/list')
+            await axios.get(workshopUrl + '/order/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('getRepairOrderListMutation', result.data.orderList)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addRepairOrder({commit}, order) {
-            await axios.post(workshopUrl + '/order/new', order)
+            await axios.post(workshopUrl + '/order/new', order, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.repairOrderList.findIndex(item => item.id === result.data.id)
                     if(index > -1) {
@@ -265,12 +320,20 @@ export default new Vuex.Store({
                     } else {
                         commit('addRepairOrderMutation', order)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updateRepairOrder ({commit}, order) {
-            await axios.put(workshopUrl + '/order/update/' + order.id, order)
+            await axios.put(workshopUrl + '/order/update/' + order.id, order, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updateRepairOrderMutation', order)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -278,15 +341,25 @@ export default new Vuex.Store({
          * Organization actions
          */
         async getOrganizationList({commit}) {
-            await axios.get(manageUrl + '/organization/list')
+            await axios.get(manageUrl + '/organization/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     if(result.data.orgList) {
                         commit('getOrganizationListMutation', result.data.orgList)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addOrganization({commit}, org) {
-            await axios.post(manageUrl + '/organization/new', org)
+            await axios.post(manageUrl + '/organization/new', org, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.orgList.findIndex(item => item.id === result.data.orgList[0].id)
                     if(index > -1) {
@@ -294,12 +367,20 @@ export default new Vuex.Store({
                     } else {
                         commit('addOrganizationMutation', org)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updateOrganization ({commit}, org) {
-            await axios.put(manageUrl + '/organization/update/' + org.id, org)
+            await axios.put(manageUrl + '/organization/update/' + org.id, org, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updateOrganizationMutation', org)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -307,15 +388,25 @@ export default new Vuex.Store({
          * POSType actions
          */
         async getPOSTypeList({commit}) {
-            await axios.get(manageUrl + '/pos-type/list')
+            await axios.get(manageUrl + '/pos-type/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     if(result.data.posTypeList.at(0) != null) {
                         commit('getPOSTypeListMutation', result.data.posTypeList)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addPOSType({commit}, type) {
-            await axios.post(manageUrl + '/pos-type/new', type)
+            await axios.post(manageUrl + '/pos-type/new', type, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.posTypeList.findIndex(item => item.id === result.data.posTypeList[0].id)
                     if(index > -1) {
@@ -323,12 +414,20 @@ export default new Vuex.Store({
                     } else {
                         commit('addPOSTypeMutation', type)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updatePOSType ({commit}, type) {
-            await axios.put(manageUrl + '/pos-type/update/' + type.id, type)
+            await axios.put(manageUrl + '/pos-type/update/' + type.id, type, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updatePOSTypeMutation', type)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -336,15 +435,25 @@ export default new Vuex.Store({
          * POS actions
          */
         async getPOSList({commit}) {
-            await axios.get(manageUrl + '/pos/list')
+            await axios.get(manageUrl + '/pos/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     if(result.data.posList.at(0) != null) {
                         commit('getPOSListMutation', result.data.posList)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addPOS({commit}, pos) {
-            await axios.post(manageUrl + '/pos/new', pos)
+            await axios.post(manageUrl + '/pos/new', pos, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.posList.findIndex(item => item.id === result.data.posList[0].id)
                     if(index > -1) {
@@ -352,12 +461,20 @@ export default new Vuex.Store({
                     } else {
                         commit('addPOSMutation', pos)
                     }
+                }).catch(er=> {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updatePOS ({commit}, pos) {
-            await axios.put(manageUrl + '/pos/update/' + pos.id, pos)
+            await axios.put(manageUrl + '/pos/update/' + pos.id, pos, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('updatePOSMutation', pos)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -365,13 +482,23 @@ export default new Vuex.Store({
          * Employee Role actions
          */
         async getRoleList({commit}) {
-            await axios.get(manageUrl + '/employee-role/list')
+            await axios.get(manageUrl + '/employee-role/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     commit('getRoleListMutation', result.data.roles)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async addRole({commit}, role) {
-            await axios.post(manageUrl + '/employee-role/new', role)
+            await axios.post(manageUrl + '/employee-role/new', role, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     const index = this.state.roleList.findIndex(item => item.id === result.data.roles[0].id)
                     if(index > -1) {
@@ -379,14 +506,22 @@ export default new Vuex.Store({
                     } else {
                         commit('addRoleMutation', role)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
         async updateRole ({commit}, role) {
-            await axios.put(manageUrl + '/employee-role/update/' + role.id, role)
+            await axios.put(manageUrl + '/employee-role/update/' + role.id, role, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
                 .then(result => {
                     if(result.data !== null) {
                         commit('updateRoleMutation', role)
                     }
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -396,6 +531,9 @@ export default new Vuex.Store({
          */
         async getEngineerList({commit}) {
             await axios.get(manageUrl + '/employee/search/role/', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                },
                 params: engineerRoles,
                 paramsSerializer: params => {
                     return params.map((keyValuePair) => new URLSearchParams(keyValuePair)).join("&")
@@ -403,6 +541,8 @@ export default new Vuex.Store({
             })
                 .then(result => {
                     commit('getEngineerListMutation', result.data.employeeDTOList)
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
         },
 
@@ -410,11 +550,18 @@ export default new Vuex.Store({
          * Module to generate and download certificates
          */
         async generateAcceptanceCertificate({commit}, order) {
-            await axios.post(workshopUrl + "/order/file/acceptance_cert", order).then(result => {
+            await axios.post(workshopUrl + "/order/file/acceptance_cert", order, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            }).then(result => {
                 axios({
                     url: workshopUrl + "/order/file/acceptance_cert",
                     method: 'GET',
                     responseType: 'blob',
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.token
+                    }
                 }).then((response) => {
                     let fileURL = window.URL.createObjectURL(new Blob([response.data]));
                     let fileLink = document.createElement('a');
@@ -423,6 +570,8 @@ export default new Vuex.Store({
                     fileLink.setAttribute('download', 'ACCEPTANCE_CERTIFICATE.xlsx');
                     document.body.appendChild(fileLink);
                     fileLink.click();
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
                 })
             })
         }

@@ -26,7 +26,7 @@ public class WebConfig implements WebMvcConfigurer {
                         HttpMethod.PUT.name(),
                         HttpMethod.DELETE.name())
                 .maxAge(MAX_AGE)
-                .allowedOrigins("*")
+                .allowedOrigins("http://localhost:8100")
                 .allowCredentials(false);
     }
 }

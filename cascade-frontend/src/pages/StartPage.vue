@@ -7,9 +7,14 @@
 </template>
 
 <script>
-    export default {
-        name: 'StartPage'
+export default {
+  name: 'StartPage',
+  beforeMount() {
+    if(this.$store.state.token === null || this.$store.state.token.length <1) {
+      this.$router.push('/login')
     }
+  }
+}
 </script>
 
 <style>
