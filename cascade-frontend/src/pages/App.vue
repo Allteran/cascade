@@ -71,6 +71,7 @@ export default {
     },
     logout(){
       console.log('token before logout', this.$store.state.token)
+      this.$store.commit("clearState")
       this.$router.push('/login')
       console.log('token after logout', this.$store.state.token)
     }

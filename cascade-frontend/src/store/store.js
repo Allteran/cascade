@@ -3,6 +3,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import ConstConfig from 'util/ConstConfig'
+import Cookies from 'js-cookie'
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 const workshopUrl = ConstConfig.url.workshopUrl
@@ -195,8 +197,17 @@ export default new Vuex.Store({
         saveToken(state, token) {
             state.token = token
         },
-        clearToken(state) {
+        clearState(state) {
             state.token = null
+            state.orderStatusList = []
+            state.deviceTypeList = []
+            state.repairStatusList = []
+            state.repairOrderList = []
+            state.posTypeList = []
+            state.posList = []
+            state.engineerList = []
+            state.roleList = []
+            state.orgList = []
         }
 
     },
@@ -575,5 +586,11 @@ export default new Vuex.Store({
                 })
             })
         }
-    }
+    },
+    plugins: [
+        createPersistedState({
+            getState: (key) => Cookies.getJSON(key),
+            setState: (key, state) => Cookies.set(key, state, { expires: 3, secure: true })
+        })
+    ]
 })
