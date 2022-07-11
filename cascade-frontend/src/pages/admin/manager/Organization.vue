@@ -134,7 +134,9 @@ export default {
   },
   beforeMount() {
     if(this.orgList.length === 0) {
-      this.getOrganizationList()
+      this.getOrganizationList().catch(er => {
+        this.redirectToLogin()
+      })
     }
   },
   watch: {
@@ -165,6 +167,9 @@ export default {
       this.close()
       this.getOrganizationList()
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

@@ -143,8 +143,18 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
+
 export default {
   name: 'AdminPanel',
+  beforeMount() {
+    if(this.token === null || this.token.length < 1) {
+      this.redirectToLogin()
+    }
+  },
+  computed: {
+    ...mapState(['token'])
+  },
   methods: {
     showRepairDeviceTypePage() {
       this.$router.push('/adm/repair/device-type')
@@ -163,6 +173,9 @@ export default {
     },
     showPOSPage() {
       this.$router.push('/adm/manage/pos')
+    },
+    redirectToLogin() {
+      this.$router.push('/login')
     }
   }
 }

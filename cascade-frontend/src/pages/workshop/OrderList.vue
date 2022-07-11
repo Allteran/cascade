@@ -92,6 +92,7 @@ export default {
       this.loading = false
     }).catch(er => {
       this.loading = false
+      this.redirectToLogin()
     })
   },
   computed: {
@@ -118,6 +119,9 @@ export default {
     showCreateOrderPage() {
       this.$router.push('/workshop/order/new')
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

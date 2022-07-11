@@ -330,10 +330,14 @@ export default {
     ...mapState(['deviceTypeList', 'posList', 'engineerList'])
   },
   beforeMount() {
-    this.getDeviceTypeList()
-    this.getPOSList()
-    if(this.engineerList.length === 0) {
-      this.getEngineerList()
+    try {
+      this.getDeviceTypeList()
+      this.getPOSList()
+      if (this.engineerList.length === 0) {
+        this.getEngineerList()
+      }
+    } catch (er) {
+      this.redirectToLogin()
     }
   },
   methods: {
@@ -367,10 +371,14 @@ export default {
     },
     saveOrder() {
       this.validate()
-      if(this.valid) {
-        this.prepareOrder()
-        this.addRepairOrder(this.order)
-        this.saveOrderDialog = true;
+      try {
+        if(this.valid) {
+          this.prepareOrder()
+          this.addRepairOrder(this.order)
+          this.saveOrderDialog = true;
+        }
+      } catch (er) {
+        this.redirectToLogin()
       }
     },
     closeCertificateDialog() {
@@ -380,6 +388,9 @@ export default {
       this.certificateDialog = false;
       this.saveOrderDialog = false;
       this.$router.push('/workshop/order')
+    },
+    redirectToLogin() {
+      this.$router.push('/login')
     }
   }
 }

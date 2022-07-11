@@ -11,6 +11,7 @@ export default {
   name: 'StartPage',
   beforeMount() {
     if(this.$store.state.token === null || this.$store.state.token.length <1) {
+      this.$store.commit('clearState')
       this.$router.push('/login')
     }
   }

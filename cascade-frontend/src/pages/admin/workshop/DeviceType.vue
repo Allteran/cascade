@@ -120,7 +120,7 @@ export default {
   },
   beforeMount() {
     if(this.deviceTypeList.length === 0) {
-      this.getDeviceTypeList()
+      this.getDeviceTypeList().catch(er => {this.redirectToLogin()})
     }
   },
   watch: {
@@ -143,14 +143,21 @@ export default {
       })
     },
     save() {
-      if (this.editedItem.id) {
-        this.updateDeviceType(this.editedItem)
-      } else {
-        this.addDeviceType(this.editedItem)
+      try {
+        if (this.editedItem.id) {
+          this.updateDeviceType(this.editedItem)
+        } else {
+          this.addDeviceType(this.editedItem)
+        }
+        this.close()
+        this.getDeviceTypeList()
+      } catch (e) {
+        this.redirectToLogin()
       }
-      this.close()
-      this.getDeviceTypeList()
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

@@ -120,7 +120,7 @@ export default {
   },
   beforeMount() {
     if(this.roleList.length === 0) {
-      this.getRoleList()
+      this.getRoleList().catch(er => {this.redirectToLogin()})
     }
   },
   watch: {
@@ -143,14 +143,21 @@ export default {
       })
     },
     save() {
-      if (this.editedItem.id) {
-        this.updateRole(this.editedItem)
-      } else {
-        this.addRole(this.editedItem)
+      try {
+        if (this.editedItem.id) {
+          this.updateRole(this.editedItem)
+        } else {
+          this.addRole(this.editedItem)
+        }
+        this.close()
+        this.getRoleList()
+      } catch (e) {
+        this.redirectToLogin()
       }
-      this.close()
-      this.getRoleList()
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

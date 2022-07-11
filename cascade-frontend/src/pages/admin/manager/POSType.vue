@@ -120,7 +120,9 @@ export default {
   },
   beforeMount() {
     if(this.posTypeList.length === 0) {
-      this.getPOSTypeList()
+      this.getPOSTypeList().catch(er => {
+        this.redirectToLogin()
+      })
     }
   },
   watch: {
@@ -144,13 +146,16 @@ export default {
     },
     save() {
       if (this.editedItem.id) {
-        this.updatePOSType(this.editedItem)
+        this.updatePOSType(this.editedItem).catch(er => {this.redirectToLogin()})
       } else {
-        this.addPOSType(this.editedItem)
+        this.addPOSType(this.editedItem).catch(er =>{this.redirectToLogin()})
       }
       this.close()
-      this.getPOSTypeList()
+      this.getPOSTypeList().catch(er =>this.redirectToLogin())
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

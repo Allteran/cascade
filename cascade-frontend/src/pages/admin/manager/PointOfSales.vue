@@ -192,8 +192,12 @@ export default {
     },
   },
   beforeMount() {
-    this.getPOSTypeList()
-    this.getPOSList()
+    try {
+      this.getPOSTypeList()
+      this.getPOSList()
+    } catch (e) {
+      this.redirectToLogin()
+    }
 
   },
   watch: {
@@ -229,10 +233,13 @@ export default {
           this.addPOS(this.editedItem)
         }
         this.$refs.form.resetValidation()
-        this.getPOSList()
+        this.getPOSList().catch(er => {this.redirectToLogin()})
         this.close()
       }
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

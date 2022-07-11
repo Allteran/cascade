@@ -12,6 +12,8 @@ import POSType from 'pages/admin/manager/POSType.vue'
 import PointOfSales from 'pages/admin/manager/PointOfSales.vue'
 import LoginPage from 'pages/LoginPage.vue'
 import NotFound from 'pages/NotFound.vue'
+import OrderDetails from 'pages/workshop/OrderDetails.vue'
+import OrderEdit from 'pages/workshop/OrderEdit.vue'
 
 Vue.use(VueRouter)
 
@@ -27,6 +29,8 @@ const routes = [
     {path: '/adm/manage/pos', component: PointOfSales},
     {path: '/workshop/order', component: OrderList},
     {path: '/workshop/order/new', component: CreateOrder},
+    {path: '/workshop/order/view/:id', name: 'order-details', component: OrderDetails},
+    {path: '/workshop/order/edit/:id', name: 'order-edit', component: OrderEdit},
     {path: '/404', component: NotFound},
     {path: '*', redirect: '/404'}
 ]

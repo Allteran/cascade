@@ -12,10 +12,6 @@
       <v-btn text
              @click="showOrderList"
       >
-        Создание заявки
-      </v-btn>
-      <v-btn text
-      >
         Реестр ремонта
       </v-btn>
       <v-btn text
@@ -50,7 +46,7 @@
 <script>
 export default {
   data: () => ({
-    loggedIn:false,
+
   }),
   computed: {
     isLoggedIn: function () {
@@ -59,6 +55,7 @@ export default {
   },
   beforeMount() {
     if(this.$store.state.token === null || this.$store.state.token.length < 1) {
+      this.$store.commit('clearState')
       this.$router.push('/login')
     }
   },
@@ -70,10 +67,8 @@ export default {
       this.$router.push('/workshop/order')
     },
     logout(){
-      console.log('token before logout', this.$store.state.token)
-      this.$store.commit("clearState")
+      this.$store.commit('clearState')
       this.$router.push('/login')
-      console.log('token after logout', this.$store.state.token)
     }
   }
 }

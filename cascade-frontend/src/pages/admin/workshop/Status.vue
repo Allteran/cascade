@@ -120,7 +120,7 @@ export default {
   },
   beforeMount() {
     if(this.repairStatusList.length === 0) {
-      this.getRepairStatusList()
+      this.getRepairStatusList().catch(er =>{this.redirectToLogin()})
     }
   },
   watch: {
@@ -143,14 +143,21 @@ export default {
       })
     },
     save() {
-      if (this.editedItem.id) {
-        this.updateRepairStatus(this.editedItem)
-      } else {
-        this.addRepairStatus(this.editedItem)
+      try {
+        if (this.editedItem.id) {
+          this.updateRepairStatus(this.editedItem)
+        } else {
+          this.addRepairStatus(this.editedItem)
+        }
+        this.close()
+        this.getRepairStatusList()
+      } catch (e) {
+        this.redirectToLogin()
       }
-      this.close()
-      this.getRepairStatusList()
     },
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

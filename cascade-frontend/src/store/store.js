@@ -224,7 +224,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('getDeviceTypeListMutation', result.data)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -242,8 +243,8 @@ export default new Vuex.Store({
                         commit('addDeviceTypeListMutation', type)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
-
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updateDeviceType({commit}, type) {
@@ -255,7 +256,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updateDeviceTypeMutation', type)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         /**
@@ -270,7 +272,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('getRepairStatusListMutation', result.data)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addRepairStatus({commit}, status) {
@@ -287,7 +290,8 @@ export default new Vuex.Store({
                         commit('addRepairStatusMutation', status)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updateRepairStatus ({commit}, status) {
@@ -299,7 +303,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updateRepairStatusMutation', status)
                 }).catch(er => {
-                    throw new Error('Something went wrokg', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -315,7 +320,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('getRepairOrderListMutation', result.data.orderList)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addRepairOrder({commit}, order) {
@@ -332,7 +338,8 @@ export default new Vuex.Store({
                         commit('addRepairOrderMutation', order)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updateRepairOrder ({commit}, order) {
@@ -344,7 +351,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updateRepairOrderMutation', order)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -362,7 +370,8 @@ export default new Vuex.Store({
                         commit('getOrganizationListMutation', result.data.orgList)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addOrganization({commit}, org) {
@@ -379,7 +388,8 @@ export default new Vuex.Store({
                         commit('addOrganizationMutation', org)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updateOrganization ({commit}, org) {
@@ -391,7 +401,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updateOrganizationMutation', org)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -409,7 +420,8 @@ export default new Vuex.Store({
                         commit('getPOSTypeListMutation', result.data.posTypeList)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addPOSType({commit}, type) {
@@ -426,7 +438,8 @@ export default new Vuex.Store({
                         commit('addPOSTypeMutation', type)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updatePOSType ({commit}, type) {
@@ -438,7 +451,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updatePOSTypeMutation', type)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -456,7 +470,8 @@ export default new Vuex.Store({
                         commit('getPOSListMutation', result.data.posList)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addPOS({commit}, pos) {
@@ -473,7 +488,8 @@ export default new Vuex.Store({
                         commit('addPOSMutation', pos)
                     }
                 }).catch(er=> {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updatePOS ({commit}, pos) {
@@ -485,7 +501,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('updatePOSMutation', pos)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -501,7 +518,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('getRoleListMutation', result.data.roles)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async addRole({commit}, role) {
@@ -518,7 +536,8 @@ export default new Vuex.Store({
                         commit('addRoleMutation', role)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
         async updateRole ({commit}, role) {
@@ -532,7 +551,8 @@ export default new Vuex.Store({
                         commit('updateRoleMutation', role)
                     }
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -553,7 +573,8 @@ export default new Vuex.Store({
                 .then(result => {
                     commit('getEngineerListMutation', result.data.employeeDTOList)
                 }).catch(er => {
-                    throw new Error('Something went wrong', er)
+                    commit('clearState')
+                    throw new Error('Seems Token has been expired', er)
                 })
         },
 
@@ -585,6 +606,9 @@ export default new Vuex.Store({
                     throw new Error('Something went wrong', er)
                 })
             })
+        },
+        async generateRepairCertificate({commit}, order) {
+            console.log('PRINTED REPAIR CERTIFICATE')
         }
     },
     plugins: [
