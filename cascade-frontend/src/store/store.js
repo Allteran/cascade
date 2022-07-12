@@ -222,7 +222,7 @@ export default new Vuex.Store({
                 }
             })
                 .then(result => {
-                    commit('getDeviceTypeListMutation', result.data)
+                    commit('getDeviceTypeListMutation', result.data.typeList)
                 }).catch(er => {
                     commit('clearState')
                     throw new Error('Seems Token has been expired', er)
@@ -236,7 +236,7 @@ export default new Vuex.Store({
                 }
             })
                 .then(result => {
-                    const index = this.state.deviceTypeList.findIndex(item => item.id === result.data.id)
+                    const index = this.state.deviceTypeList.findIndex(item => item.id === result.data.typeList.id)
                     if(index > -1) {
                         commit('updateDeviceTypeMutation', type)
                     } else {
@@ -270,7 +270,7 @@ export default new Vuex.Store({
                 }
             })
                 .then(result => {
-                    commit('getRepairStatusListMutation', result.data)
+                    commit('getRepairStatusListMutation', result.data.statusList)
                 }).catch(er => {
                     commit('clearState')
                     throw new Error('Seems Token has been expired', er)
@@ -283,7 +283,7 @@ export default new Vuex.Store({
                 }
             })
                 .then(result => {
-                    const index = this.state.repairStatusList.findIndex(item => item.id === result.data.id)
+                    const index = this.state.repairStatusList.findIndex(item => item.id === result.data.statusList.id)
                     if(index > -1) {
                         commit('updateRepairStatusMutation', status)
                     } else {

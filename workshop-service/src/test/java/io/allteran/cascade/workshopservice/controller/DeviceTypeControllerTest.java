@@ -1,7 +1,7 @@
 package io.allteran.cascade.workshopservice.controller;
 
-import io.allteran.cascade.workshopservice.domain.DeviceType;
 import io.allteran.cascade.workshopservice.dto.DeviceTypeDTO;
+import io.allteran.cascade.workshopservice.dto.DeviceTypeResponse;
 import io.allteran.cascade.workshopservice.service.DeviceTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -49,8 +48,8 @@ class DeviceTypeControllerTest {
         String typeDTOString = mapper.writeValueAsString(typeDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/workshop/device-type/new")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(typeDTOString))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(typeDTOString))
                 .andExpect(status().isCreated());
 
         Assertions.assertEquals(1, deviceTypeService.findAll().size());
@@ -68,9 +67,9 @@ class DeviceTypeControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/workshop/device-type/list")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(typeString))
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/workshop/device-type/list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(typeString))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -94,10 +93,10 @@ class DeviceTypeControllerTest {
         String responseString = mvcResult.getResponse().getContentAsString();
         log.debug("POST request to device-type/new done, response is {}", responseString);
 
-        DeviceTypeDTO responseDTO = mapper.readValue(responseString, DeviceTypeDTO.class);
+        DeviceTypeResponse responseDTO = mapper.readValue(responseString, DeviceTypeResponse.class);
 
 
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/workshop/device-type/{id}", responseDTO.getId())
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/workshop/device-type/{id}", responseDTO.getTypeList().get(0).getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(typeString))
                 .andExpect(status().isOk())
@@ -120,25 +119,26 @@ class DeviceTypeControllerTest {
         String responseString = mvcResult.getResponse().getContentAsString();
         log.debug("POST request to device-type/new done, response is {}", responseString);
 
-        DeviceTypeDTO createResponseDTO = mapper.readValue(responseString, DeviceTypeDTO.class);
-        
+        DeviceTypeResponse createResponseDTO = mapper.readValue(responseString, DeviceTypeResponse.class);
+
         DeviceTypeDTO updateDTO = new DeviceTypeDTO();
-        updateDTO.setId(createResponseDTO.getId());
+        updateDTO.setId(createResponseDTO.getTypeList().get(0).getId());
         updateDTO.setName("changed name");
-        
+
         String updateStringDTO = mapper.writeValueAsString(updateDTO);
 
-        MvcResult updateMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/workshop/device-type/update/{id}", createResponseDTO.getId())
+        MvcResult updateMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/workshop/device-type/update/{id}",
+                                createResponseDTO.getTypeList().get(0).getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateStringDTO))
                 .andExpect(status().isAccepted())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        DeviceTypeDTO updateResponseDTO = mapper.readValue(updateMvcResult.getResponse().getContentAsString(), DeviceTypeDTO.class);
+        DeviceTypeResponse updateResponseDTO = mapper.readValue(updateMvcResult.getResponse().getContentAsString(), DeviceTypeResponse.class);
 
-        Assertions.assertEquals(createResponseDTO.getId(), updateResponseDTO.getId());
-        Assertions.assertNotEquals(createResponseDTO.getName(), updateResponseDTO.getName());
+        Assertions.assertEquals(createResponseDTO.getTypeList().get(0).getId(), updateResponseDTO.getTypeList().get(0).getId());
+        Assertions.assertNotEquals(createResponseDTO.getTypeList().get(0).getName(), updateResponseDTO.getTypeList().get(0).getName());
 
         Assertions.assertEquals(1, deviceTypeService.findAll().size());
     }
@@ -159,9 +159,9 @@ class DeviceTypeControllerTest {
         String responseString = mvcResult.getResponse().getContentAsString();
         log.debug("POST request to device-type/new done, response is {}", responseString);
 
-        DeviceTypeDTO createResponseDTO = mapper.readValue(responseString, DeviceTypeDTO.class);
+        DeviceTypeResponse createResponseDTO = mapper.readValue(responseString, DeviceTypeResponse.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/workshop/device-type/delete/{id}", createResponseDTO.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/workshop/device-type/delete/{id}", createResponseDTO.getTypeList().get(0).getId()))
                 .andExpect(status().isOk());
 
         Assertions.assertEquals(0, deviceTypeService.findAll().size());
