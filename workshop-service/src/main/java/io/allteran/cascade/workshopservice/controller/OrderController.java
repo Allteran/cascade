@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class OrderController {
     private final ModelMapper modelMapper;
 
     private ByteArrayInputStream acceptanceCertificate;
+    private ByteArrayInputStream repairCertificate;
 
     @Autowired
     public OrderController(OrderService orderService, SheetService sheetService, WebClient.Builder webClientBuilder, ModelMapper modelMapper) {
@@ -223,6 +225,15 @@ public class OrderController {
         }
     }
 
+    @PostMapping("file/repair_cert")
+    public void generateRepairCertificate(@RequestBody OrderDTO orderDTO) {
+        try {
+            repairCertificate = sheetService.generateRepairCertificate(convertToEntity(orderDTO));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @GetMapping("file/acceptance_cert")
     public HttpEntity<ByteArrayResource> downloadAcceptanceCertificate() {
         HttpHeaders headers = new HttpHeaders();
@@ -230,6 +241,15 @@ public class OrderController {
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ACCEPTANCE_CERTIFICATE.xlsx");
 
         return new HttpEntity<>(new ByteArrayResource(acceptanceCertificate.readAllBytes()),headers);
+    }
+
+    @GetMapping("file/repair_cert")
+    public HttpEntity<ByteArrayResource> downloadRepairCertificate() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "force-download"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=REPAIR_CERTIFICATE.xlsx");
+
+        return new HttpEntity<>(new ByteArrayResource(repairCertificate.readAllBytes()),headers);
     }
 
     @GetMapping("test/get/emp")

@@ -608,7 +608,30 @@ export default new Vuex.Store({
             })
         },
         async generateRepairCertificate({commit}, order) {
-            console.log('PRINTED REPAIR CERTIFICATE')
+            await axios.post(workshopUrl + "/order/file/repair_cert", order, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            }).then(result => {
+                axios({
+                    url: workshopUrl + "/order/file/repair_cert",
+                    method: 'GET',
+                    responseType: 'blob',
+                    headers: {
+                        'Authorization': 'Bearer ' + this.state.token
+                    }
+                }).then((response) => {
+                    let fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                    let fileLink = document.createElement('a');
+
+                    fileLink.href = fileURL;
+                    fileLink.setAttribute('download', 'REPAIR_CERTIFICATE.xlsx');
+                    document.body.appendChild(fileLink);
+                    fileLink.click();
+                }).catch(er => {
+                    throw new Error('Something went wrong', er)
+                })
+            })
         }
     },
     plugins: [

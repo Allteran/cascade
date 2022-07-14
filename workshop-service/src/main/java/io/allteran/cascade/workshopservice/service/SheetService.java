@@ -120,4 +120,83 @@ public class SheetService {
 
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
+
+    public ByteArrayInputStream generateRepairCertificate(Order order) throws IOException {
+        EmployeeResponse authorResponse = webClientBuilder.build().get()
+                .uri(URI_EMPLOYEE + order.getAuthorId())
+                .retrieve()
+                .bodyToMono(EmployeeResponse.class)
+                .block();
+        POSResponse posResponse = webClientBuilder.build().get()
+                .uri(URI_POS + order.getPosId())
+                .retrieve()
+                .bodyToMono(POSResponse.class)
+                .block();
+
+        if(authorResponse == null || authorResponse.getEmployeeDTOList().isEmpty()) {
+            throw new NotFoundException("User with id [" + order.getAuthorId() + "] not found in database");
+        }
+        if(posResponse == null || posResponse.getPosList().isEmpty()) {
+            throw new NotFoundException("POS with id [" + order.getPosId() + "] not found in database");
+        }
+        EmployeeDTO author = authorResponse.getEmployeeDTOList().get(0);
+        PointOfSalesDTO pos = posResponse.getPosList().get(0);
+
+        File currentDir = new File("workshop-service");
+        String path = currentDir.getAbsolutePath() + "/" + XLSX_TEMPLATE_DIR + REPAIR_XLSX_TEMPLATE_NAME;
+        FileInputStream file = null;
+        Workbook workbook = null;
+        file = new FileInputStream(path);
+        workbook = new XSSFWorkbook(file);
+
+        Sheet mainSheet = workbook.getSheetAt(0);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        if(order.getIssueDate() == null) {
+            order.setIssueDate(LocalDate.now());
+        }
+
+        //POS data
+        mainSheet.getRow(2).getCell(1).setCellValue("г. " + pos.getCity() + ", " + pos.getAddress());
+        mainSheet.getRow(36).getCell(1).setCellValue("г. " + pos.getCity() + ", " + pos.getAddress());
+
+        //header
+        mainSheet.getRow(7).getCell(8).setCellValue(dateFormatter.format(order.getIssueDate()));
+        mainSheet.getRow(41).getCell(8).setCellValue(dateFormatter.format(order.getIssueDate()));
+
+        //customer name
+        mainSheet.getRow(8).getCell(2).setCellValue(order.getCustomerName());
+        mainSheet.getRow(42).getCell(2).setCellValue(order.getCustomerName());
+
+        //device
+        mainSheet.getRow(9).getCell(2).setCellValue(order.getDeviceName());
+        mainSheet.getRow(43).getCell(2).setCellValue(order.getDeviceName());
+
+        //SN
+        mainSheet.getRow(10).getCell(2).setCellValue(order.getSerialNumber());
+        mainSheet.getRow(44).getCell(2).setCellValue(order.getSerialNumber());
+
+        //defect
+        mainSheet.getRow(11).getCell(2).setCellValue(order.getDefect());
+        mainSheet.getRow(45).getCell(2).setCellValue(order.getDefect());
+
+        //warranty
+        mainSheet.getRow(13).getCell(2).setCellValue(order.getWarranty());
+        mainSheet.getRow(47).getCell(2).setCellValue(order.getWarranty());
+
+        //performed actions
+        mainSheet.getRow(16).getCell(1).setCellValue(order.getPerformedActions());
+        mainSheet.getRow(50).getCell(1).setCellValue(order.getPerformedActions());
+
+        //total price
+        mainSheet.getRow(16).getCell(9).setCellValue(order.getTotalPrice());
+        mainSheet.getRow(18).getCell(9).setCellValue(order.getTotalPrice());
+        mainSheet.getRow(50).getCell(9).setCellValue(order.getTotalPrice());
+        mainSheet.getRow(52).getCell(9).setCellValue(order.getTotalPrice());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+
+        return new ByteArrayInputStream(outputStream.toByteArray());
+    }
 }
