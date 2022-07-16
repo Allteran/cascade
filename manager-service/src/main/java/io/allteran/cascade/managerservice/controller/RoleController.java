@@ -57,7 +57,7 @@ public class RoleController {
         Role createdRole = roleService.create(convertToEntity(role));
         if(createdRole != null && !createdRole.getId().isEmpty()) {
             RoleDTO createdDTO = convertToDTO(createdRole);
-            return new ResponseEntity<>(new RoleResponse("OK", Collections.singletonList(createdDTO)), HttpStatus.OK);
+            return new ResponseEntity<>(new RoleResponse("OK", Collections.singletonList(createdDTO)), HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(new RoleResponse("Role cannot be created due to an error, check logs", Collections.emptyList()), HttpStatus.OK);
         }
