@@ -549,13 +549,9 @@ export default {
       let priceSum = this.order.componentPrice + this.order.marginPrice
       if(this.$refs.form.validate()) {
         if(priceSum <= this.order.totalPrice) {
-          console.log('creationDate before formatting = ', this.order.creationDate)
           this.order.creationDate = this.creationDate
-          console.log('creationDate after formatting =', this.order.creationDate)
           if(this.issueDate !== []) {
-            console.log('issueDate before formatting = ', this.order.issueDate)
             this.order.issueDate = this.issueDate
-            console.log('issueDate after formatting = ', this.order.issueDate)
           }
           this.valid = true
         }
@@ -567,6 +563,8 @@ export default {
       this.validate()
       if (this.valid) {
         this.notificationMessage = 'Сейчас начнется загрузка акта работ. Все изменения будут сохранены автоматически. Нажмите "ОК" чтобы перейти к реестру заказов'
+        this.order.statusName = this.selectedStatus.name
+        this.order.statusId = this.selectedStatus.id
         this.generateRepairCertificate(this.order)
         this.saveChangesDialog = true
         this.updateRepairOrder(this.order).catch(er => {
@@ -577,6 +575,8 @@ export default {
     saveChanges() {
       this.validate()
       if(this.valid) {
+        this.order.statusName = this.selectedStatus.name
+        this.order.statusId = this.selectedStatus.id
         this.updateRepairOrder(this.order).catch(er => {
           this.redirectToOrderList()
         })

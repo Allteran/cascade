@@ -20,6 +20,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,8 +47,36 @@ class StatusControllerTest {
 
 
     @Test
-    void findById() {
+    void findById() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        StatusDTO status = getStatusDTO();
+        String statusString = mapper.writeValueAsString(status);
 
+        MvcResult creationResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/workshop/status/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(statusString))
+                .andExpect(status().isCreated())
+                .andExpect(result -> {
+                    StatusResponse response = mapper.readValue(result.getResponse().getContentAsString(),
+                            StatusResponse.class);
+                    assertEquals(1, response.getStatusList().size());
+                    assertEquals(status.getName(), response.getStatusList().get(0).getName());
+                }).andReturn();
+
+        StatusResponse createdResponse = mapper.readValue(creationResult.getResponse().getContentAsString(),
+                StatusResponse.class);
+        StatusDTO createdStatus = createdResponse.getStatusList().get(0);
+
+        MvcResult findByIdResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/workshop/status/{id}", createdStatus.getId()))
+                .andExpect(status().isOk())
+                .andReturn();
+        StatusResponse findByIdResponse = mapper.readValue(findByIdResult.getResponse().getContentAsString(),
+                StatusResponse.class);
+        StatusDTO findByIdStatus = findByIdResponse.getStatusList().get(0);
+
+        Assertions.assertEquals(createdStatus.getId(), findByIdStatus.getId());
+        Assertions.assertEquals(1, statusService.findAll().size());
+        Assertions.assertEquals(findByIdStatus.getName(), statusService.findById(findByIdStatus.getId()).getName());
     }
 
     @Test

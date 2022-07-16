@@ -397,6 +397,7 @@ public class OrderController {
         orderDTO.setSerialNumber(order.getSerialNumber());
         orderDTO.setDefect(order.getDefect());
         orderDTO.setEquipSet(order.getEquipSet());
+        orderDTO.setAppearance(order.getAppearance());
         orderDTO.setWarranty(order.getWarranty());
         orderDTO.setPerformedActions(order.getPerformedActions());
         orderDTO.setCreationDate(order.getCreationDate());
