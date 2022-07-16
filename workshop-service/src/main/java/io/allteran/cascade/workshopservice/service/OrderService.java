@@ -3,7 +3,6 @@ package io.allteran.cascade.workshopservice.service;
 import io.allteran.cascade.workshopservice.domain.Order;
 import io.allteran.cascade.workshopservice.domain.Status;
 import io.allteran.cascade.workshopservice.exception.NotFoundException;
-import io.allteran.cascade.workshopservice.exception.WorkshopException;
 import io.allteran.cascade.workshopservice.repo.OrderRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class OrderService {
         double headEngineerProfit;
         double engineerProfit;
         double managerProfit;
-        if(order.getEngineerRoles().equals(ROLE_HEAD_ENGINEER)) {
+        if(order.getEngineerRoles().contains(ROLE_HEAD_ENGINEER)) {
             directorProfit = orderFromDb.getServicePrice() * 0.45 + orderFromDb.getMarginPrice() / 2;
             headEngineerProfit = directorProfit + orderFromDb.getComponentPrice();
             engineerProfit = 0;
@@ -83,13 +82,13 @@ public class OrderService {
         orderFromDb.setEngineerProfit(engineerProfit);
         orderFromDb.setManagerProfit(managerProfit);
 
-        if(orderFromDb.getIssueDate().isAfter(DEFAULT_DATE)) {
-            if(!orderFromDb.getStatus().getId().equals(STATUS_PAID_ID) &&
-                    !orderFromDb.getStatus().getId().equals(STATUS_UNPAID_ID)) {
-                throw new WorkshopException("If you defined issueDate of order, you should define status PAID or UNPAID");
-            }
+        if(orderFromDb.getIssueDate() == null) {
+            orderFromDb.setIssueDate(DEFAULT_DATE);
         }
-
+        if (orderFromDb.getIssueDate().isAfter(DEFAULT_DATE)) {
+            Status paid = statusService.findById(STATUS_PAID_ID);
+            orderFromDb.setStatus(paid);
+        }
         return orderRepository.save(orderFromDb);
     }
 

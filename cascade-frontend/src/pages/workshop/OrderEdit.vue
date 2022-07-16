@@ -1,9 +1,6 @@
 <template>
   <v-form ref="form" v-model="valid" lazy-validation>
     <v-container>
-      <v-alert v-if="generated" type="success">
-        {{ notificationMessage }}
-      </v-alert>
       <v-row
           justify="space-between"
       >
@@ -241,6 +238,7 @@
         >
           <v-text-field
               v-model="order.performedActions"
+              :rules="inputFieldRules"
               label="Проведенные работы"
               prepend-icon="mdi-cog-outline"
               required
@@ -253,6 +251,7 @@
           <v-text-field
               v-model="order.preliminaryPrice"
               label="Предварительная цена"
+              :rules="inputFieldRules"
               type="number"
               prepend-icon="mdi-cash"
               required
@@ -267,6 +266,7 @@
           <v-text-field
               v-model="order.componentPrice"
               label="Стоимость запчастей"
+              :rules="inputFieldRules"
               type="number"
               prepend-icon="mdi-cash"
               required
@@ -279,6 +279,7 @@
           <v-text-field
               v-model="order.marginPrice"
               label="Маржа"
+              :rules="inputFieldRules"
               type="number"
               prepend-icon="mdi-cash"
               required
@@ -413,7 +414,7 @@
               <v-card-title class="text-h5">
                 Отлично!
               </v-card-title>
-              <v-card-text>Данные успешно сохранены. Нажмите "ОК", чтобы перейти к реестру ремонта</v-card-text>
+              <v-card-text v-text="notificationMessage"></v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
@@ -455,7 +456,6 @@ export default {
       v => !!v || 'Номер телефона не может быть пустым',
       v => /^[\d]{11}$/.test(v) || '7XXXXXXXXXX',
     ],
-    generated: false,
     discardChangesDialog: false,
     saveChangesDialog: false,
     valid: false,
@@ -521,17 +521,18 @@ export default {
       this.redirectToLogin()
       return
     }
-    this.creationDate = new Date(this.order.creationDate).toISOString().substr(0, 10)
-    if(this.order.issueDate === '2000-01-01T01:01:00' || this.order.issueDate === null || this.order.issueDate === []) {
+    this.creationDate = new Date(this.order.creationDate).toISOString().substring(0, 10)
+    if(this.order.issueDate === '0001-01-01' || this.order.issueDate === null || this.order.issueDate === []) {
       this.issueDate = []
     } else {
-      this.issueDate = new Date(this.order.issueDate).toISOString().substr(0, 10)
+      this.issueDate = new Date(this.order.issueDate).toISOString().substring(0, 10)
     }
   },
   methods: {
     ...mapActions(['getRepairStatusList', 'getDeviceTypeList', 'generateRepairCertificate', 'updateRepairOrder', 'getEngineerList', 'getPOSList']),
+    //format date according to LocalDate string format
     dateFormat(date) {
-      return moment(date).format('DD.MM.YYYY')
+      return moment(date).format('YYYY-MM-DD')
     },
     totalPriceRule(value) {
       const sum = this.order.componentPrice + this.order.marginPrice
@@ -548,9 +549,13 @@ export default {
       let priceSum = this.order.componentPrice + this.order.marginPrice
       if(this.$refs.form.validate()) {
         if(priceSum <= this.order.totalPrice) {
-          this.order.creationDate = moment(this.creationDate).format()
+          console.log('creationDate before formatting = ', this.order.creationDate)
+          this.order.creationDate = this.creationDate
+          console.log('creationDate after formatting =', this.order.creationDate)
           if(this.issueDate !== []) {
-            this.order.issueDate = moment(this.issueDate).format()
+            console.log('issueDate before formatting = ', this.order.issueDate)
+            this.order.issueDate = this.issueDate
+            console.log('issueDate after formatting = ', this.order.issueDate)
           }
           this.valid = true
         }
@@ -559,11 +564,14 @@ export default {
       }
     },
     printRepairCertificate() {
-      this.notificationMessage = 'Сейчас начнется загрузка акта работ. Изменения сохранены будут автоматически'
-      this.generated = true
       this.validate()
       if (this.valid) {
+        this.notificationMessage = 'Сейчас начнется загрузка акта работ. Все изменения будут сохранены автоматически. Нажмите "ОК" чтобы перейти к реестру заказов'
         this.generateRepairCertificate(this.order)
+        this.saveChangesDialog = true
+        this.updateRepairOrder(this.order).catch(er => {
+          this.redirectToOrderList()
+        })
       }
     },
     saveChanges() {
@@ -572,6 +580,7 @@ export default {
         this.updateRepairOrder(this.order).catch(er => {
           this.redirectToOrderList()
         })
+        this.notificationMessage = 'Все изменения были сохранены. Нажмите "ОК чтобы перейти к реестру заказов'
         this.saveChangesDialog = true
       }
     },
