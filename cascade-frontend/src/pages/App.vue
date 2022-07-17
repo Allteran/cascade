@@ -25,12 +25,14 @@
       </v-btn>
       <v-spacer></v-spacer>
       <v-btn
+          v-if="profile"
           text
       >
-        Profile Name
+        {{ profile.firstName }} {{ profile.lastName }}
       </v-btn>
-      <v-btn icon
-             @click="logout">
+      <v-btn
+          v-if="profile"
+          icon @click="logout">
         <v-icon>mdi-exit-to-app</v-icon>
       </v-btn>
     </v-app-bar>
@@ -44,11 +46,14 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
+
 export default {
   data: () => ({
 
   }),
   computed: {
+    ...mapState(['profile']),
     isLoggedIn: function () {
       return this.$store.state.token != null
     }

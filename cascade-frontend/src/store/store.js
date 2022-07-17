@@ -7,8 +7,8 @@ import Cookies from 'js-cookie'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
-const workshopUrl = ConstConfig.url.workshopUrl
-const manageUrl = ConstConfig.url.manageUrl
+const workshopUrl = ConstConfig.url.workshop
+const manageUrl = ConstConfig.url.manage
 
 const engineerRoles = [{role: ConstConfig.role.engineer},{role: ConstConfig.role.headEngineer}]
 
@@ -23,6 +23,7 @@ export default new Vuex.Store({
         engineerList: [],
         roleList:[],
         orgList:[],
+        profile: {},
         token: null
     },
     mutations: {
@@ -194,11 +195,21 @@ export default new Vuex.Store({
             }
         },
 
+        /**
+         * Profile mutation
+         */
+
+        updateProfile(state, user) {
+            state.profile = null
+            state.profile = user
+        },
+
         saveToken(state, token) {
             state.token = token
         },
         clearState(state) {
             state.token = null
+            state.profile = null
             state.orderStatusList = []
             state.deviceTypeList = []
             state.repairStatusList = []
@@ -575,6 +586,23 @@ export default new Vuex.Store({
                 }).catch(er => {
                     commit('clearState')
                     throw new Error('Seems Token has been expired', er)
+                })
+        },
+
+        /**
+         * Profile and user's module
+         */
+        async getProfile({commit}) {
+            await axios.post(manageUrl + '/employee/profile', this.state.token, {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
+                .then(res => {
+                    commit('updateProfile', res.data.employeeDTOList[0])
+                }).catch(er => {
+                    commit('clearState')
+                    throw new Error('Seems token has been expired', er)
                 })
         },
 

@@ -6,9 +6,11 @@ import io.allteran.cascade.managerservice.dto.EmployeeDTO;
 import io.allteran.cascade.managerservice.dto.EmployeeResponse;
 import io.allteran.cascade.managerservice.exception.UserFieldException;
 import io.allteran.cascade.managerservice.mapper.EmployeeMapper;
+import io.allteran.cascade.managerservice.service.AuthService;
 import io.allteran.cascade.managerservice.service.EmployeeService;
 import io.allteran.cascade.managerservice.service.OrganizationService;
 import io.allteran.cascade.managerservice.service.RoleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +21,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/manage/employee")
+@Slf4j
 //@CrossOrigin(origins = "http://localhost:8100")
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final OrganizationService organizationService;
     private final RoleService roleService;
+    private final AuthService authService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, OrganizationService organizationService, RoleService roleService) {
+    public EmployeeController(EmployeeService employeeService, OrganizationService organizationService, RoleService roleService, AuthService authService) {
         this.employeeService = employeeService;
         this.organizationService = organizationService;
         this.roleService = roleService;
+        this.authService = authService;
+    }
+
+    @PostMapping("/profile")
+    public ResponseEntity<EmployeeResponse> getProfile(@RequestBody String token) {
+        log.info("Trying to get profile from token {}", token);
+        Employee currentUser = authService.validateToken(token);
+        return ResponseEntity.ok(new EmployeeResponse("OK",
+                Collections.singletonList(EmployeeMapper.convertToDTO(currentUser))));
     }
 
     @GetMapping("/list")

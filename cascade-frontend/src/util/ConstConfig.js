@@ -1,8 +1,8 @@
 export default {
     url : {
-        workshopUrl: 'http://localhost:8080/api/v1/workshop',
-        manageUrl: 'http://localhost:8080/api/v1/manage',
-        signInUrl: 'http://localhost:8080/api/v1/auth/signIn'
+        workshop: 'http://localhost:8080/api/v1/workshop',
+        manage: 'http://localhost:8080/api/v1/manage',
+        signIn: 'http://localhost:8080/api/v1/auth/signIn'
     },
     status: {
         created: 'd179baa7-91b5-4937-b03f-4cb88b68f63c',

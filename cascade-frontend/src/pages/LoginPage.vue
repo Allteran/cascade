@@ -69,6 +69,7 @@
 <script>
 import axios from 'axios'
 import ConstConfig from 'util/ConstConfig'
+import {mapActions} from 'vuex'
 
 export default {
   name: 'LoginPage',
@@ -88,12 +89,14 @@ export default {
     }
   }),
   methods: {
+    ...mapActions(['getProfile']),
     loginAttempt() {
       this.valid = this.$refs.form.validate()
       if(this.valid) {
-        axios.post(ConstConfig.url.signInUrl, this.credentials)
+        axios.post(ConstConfig.url.signIn, this.credentials)
             .then(response => {
               this.$store.commit('saveToken', response.data.token)
+              this.getProfile()
               this.$router.push('/')
             }).catch(error => {
               this.dialog = true
