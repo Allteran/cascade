@@ -606,6 +606,22 @@ export default new Vuex.Store({
                 })
         },
 
+        async updateUser({commit}, user) {
+            await axios.put(manageUrl + '/employee/update/' + user.id, user,  {
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            })
+                .then(res => {
+                    if(res.data.employeeDTOList.length !== 0) {
+                        commit('updateProfile', res.data.employeeDTOList[0])
+                    }
+                }).catch(er => {
+                    commit('clearState')
+                    throw new Error('Seems token has been expired', er)
+                })
+        },
+
         /**
          * Module to generate and download certificates
          */

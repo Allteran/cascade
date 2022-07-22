@@ -104,7 +104,6 @@ public class EmployeeService {
     }
 
     public Employee update(Employee userFromDb, Employee user) {
-        //TODO: using passwordEncoder check if typed passwords matches
         boolean isPasswordsMatches = passwordEncoder.matches(user.getPassword(), userFromDb.getPassword());
         if(user.getNewPassword() != null && user.getPasswordConfirm() != null &&!user.getNewPassword().isEmpty()) {
             if(isPasswordsMatches) {

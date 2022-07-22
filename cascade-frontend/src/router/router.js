@@ -14,6 +14,7 @@ import LoginPage from 'pages/LoginPage.vue'
 import NotFound from 'pages/NotFound.vue'
 import OrderDetails from 'pages/workshop/OrderDetails.vue'
 import OrderEdit from 'pages/workshop/OrderEdit.vue'
+import Profile from 'pages/manager/Profile.vue'
 
 Vue.use(VueRouter)
 
@@ -31,6 +32,7 @@ const routes = [
     {path: '/workshop/order/new', component: CreateOrder},
     {path: '/workshop/order/view/:id', name: 'order-details', component: OrderDetails},
     {path: '/workshop/order/edit/:id', name: 'order-edit', component: OrderEdit},
+    {path: '/profile', component: Profile},
     {path: '/404', component: NotFound},
     {path: '*', redirect: '/404'}
 ]
